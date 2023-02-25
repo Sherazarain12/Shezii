@@ -81,8 +81,8 @@ logo=("""\033[1;91m
 \033[0;34m   _____ _    _ ______ ___________ _____ 
 \033[0;34m  / ____| |  | |  ____|___  /_   _|_   _|
 \033[0;34m | (___ | |__| | |__     / /  | |   | |  
-\033[0;34m \___ \|  __  |  __|   / /   | |   | |  
-\033[0;36m ____) | |  | | |____ / /__ _| |_ _| |_ 
+ \033[0;34m \___ \|  __  |  __|   / /   | |   | |  
+  \033[0;36m ____) | |  | | |____ / /__ _| |_ _| |_ 
 \033[0;36m |_____/|_|  |_|______/_____|_____|_____|                                                                                 
 \033[0;32m                                                                                              
 ----------------------------------------------
@@ -95,7 +95,7 @@ logo=("""\033[1;91m
 \033[1;37m----------------------------------------------""")
 
 ####@-----Menu-----@####
-def JXS_Main():
+def Shezii😍_Main():
     os.system("clear")
     print(logo)
     print(f"[1]File Cloning")
@@ -132,7 +132,7 @@ def file():
             accounts.append(x.strip())
     except:
         print(f"{oo('!')}File Not Found");time.sleep(1)
-        JXS_Main()
+        Shezii😍_Main()
      
     method()
     exit()
@@ -149,7 +149,7 @@ def check(session,coki):
     	pass
     else:
         for gm in game:
-            print(f"\033[1;97m---\033[1;96m"+gm.replace('huwtn',' JXS-code=MEMORIES Shezii😍-33'))
+            print(f"\033[1;97m---\033[1;96m"+gm.replace('huwtn',' Shezii😍-code=MEMORIES Shezii😍-33'))
     w=session.get("https://mbasic.facebook.com/settings/apps/tabbed/?tab=inactive",cookies={"cookie":coki}).text
     sop = BeautifulSoup(w,"html.parser")
     x = sop.find("form",method="post")
@@ -158,7 +158,7 @@ def check(session,coki):
         pass
     else:
         for gm in game:
-            print(f"\033[1;97m---\033[1;93m"+gm.replace('riJan','JXS-182^)Code=MEMORIES Shezii😍-2233]'))
+            print(f"\033[1;97m---\033[1;93m"+gm.replace('riJan','Shezii😍-182^)Code=MEMORIES Shezii😍-2233]'))
 
 
 ####@-----Gmail-----@####
@@ -197,9 +197,9 @@ def pak():
 	user=[]
 	code = input(f'[?] Put code ex 0345 : ')
 	try:
-		limit = int(input(f'[?] Enter Limits ex 4990 :  '))
+		limit = int(input(f'[?] Enter Limits ex 50000 :  '))
 	except ValueError:
-		limit = 5000
+		limit = 50000
 	for nmbr in range(limit):
 		nmp = ''.join(random.choice(string.digits) for _ in range(7))
 		user.append(nmp)
@@ -282,7 +282,7 @@ def method():
         except:
            last = first
         pers = str(int(loop)/int(len(accounts)) * 100)[:4]
-        sys.stdout.write('\r\033[1;91m[\033[1;97mJXS-M1\033[1;91m]\033[1;97m {}-{} \033[1;91m[\033[1;97m{}\033[1;91m] \033[1;97mOK : \033[1;92m{} \033[1;97mCP : \033[1;91m{}       \r'.format(str(loop), str(len(accounts)), pers , str(len(okacc)) ,str(len(cpacc))))
+        sys.stdout.write('\r\033[1;91m[\033[1;97mShezii😍-M1\033[1;91m]\033[1;97m {}-{} \033[1;91m[\033[1;97m{}\033[1;91m] \033[1;97mOK : \033[1;92m{} \033[1;97mCP : \033[1;91m{}       \r'.format(str(loop), str(len(accounts)), pers , str(len(okacc)) ,str(len(cpacc))))
         sys.stdout.flush()
         for pword in totalpass:              
             heads = None
@@ -332,7 +332,7 @@ def method():
         except:
             last = first
         pers = str(int(loop)/int(len(accounts)) * 100)[:4]
-        sys.stdout.write('\r\033[1;91m[\033[1;97mJXS-M2\033[1;91m]\033[1;97m {}-{} \033[1;91m[\033[1;97m{}\033[1;91m] \033[1;97mOK : \033[1;92m{} \033[1;97mCP : \033[1;91m{}      \r'.format(str(loop), str(len(accounts)), pers , str(len(okacc)) ,str(len(cpacc))))
+        sys.stdout.write('\r\033[1;91m[\033[1;97mShezii😍-M2\033[1;91m]\033[1;97m {}-{} \033[1;91m[\033[1;97m{}\033[1;91m] \033[1;97mOK : \033[1;92m{} \033[1;97mCP : \033[1;91m{}      \r'.format(str(loop), str(len(accounts)), pers , str(len(okacc)) ,str(len(cpacc))))
         sys.stdout.flush()
         for pword in totalpass:
             heads = None
@@ -429,7 +429,7 @@ def andom():
         except:
             last = first
         pers = str(int(loop)/int(len(accounts)) * 100)[:4]
-        sys.stdout.write('\r\033[1;91m[\033[1;97mJXS-M1\033[1;91m]\033[1;97m {}-{} \033[1;91m[\033[1;97m{}\033[1;91m] \033[1;97mOK : \033[1;92m{} \033[1;97mCP : \033[1;91m{}       \r'.format(str(loop), str(len(accounts)), pers , str(len(okacc)) ,str(len(cpacc))))
+        sys.stdout.write('\r\033[1;91m[\033[1;97mShezii😍-M1\033[1;91m]\033[1;97m {}-{} \033[1;91m[\033[1;97m{}\033[1;91m] \033[1;97mOK : \033[1;92m{} \033[1;97mCP : \033[1;91m{}       \r'.format(str(loop), str(len(accounts)), pers , str(len(okacc)) ,str(len(cpacc))))
         sys.stdout.flush()
         for pword in totalpass:              
             heads = None
@@ -480,7 +480,7 @@ def andom():
         except:
             last = first
         pers = str(int(loop)/int(len(accounts)) * 100)[:4]
-        sys.stdout.write('\r\033[1;91m[\033[1;97mJXS-M2\033[1;91m]\033[1;97m {}-{} \033[1;91m[\033[1;97m{}\033[1;91m] \033[1;97mOK : \033[1;92m{} \033[1;97mCP : \033[1;91m{}      \r'.format(str(loop), str(len(accounts)), pers , str(len(okacc)) ,str(len(cpacc))))
+        sys.stdout.write('\r\033[1;91m[\033[1;97mShezii😍-M2\033[1;91m]\033[1;97m {}-{} \033[1;91m[\033[1;97m{}\033[1;91m] \033[1;97mOK : \033[1;92m{} \033[1;97mCP : \033[1;91m{}      \r'.format(str(loop), str(len(accounts)), pers , str(len(okacc)) ,str(len(cpacc))))
         sys.stdout.flush()
         for pword in totalpass:
             heads = None
@@ -535,4 +535,4 @@ def andom():
 
 
 
-JXS_Main()
+Shezii😍_Main()
