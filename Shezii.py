@@ -197,9 +197,9 @@ def pak():
 	user=[]
 	code = input(f'[?] Put code ex 0345 : ')
 	try:
-		limit = int(input(f'[?] Enter Limits ex 50000 :  '))
+		limit = int(input(f'[?] Enter Limits ex 4990 :  '))
 	except ValueError:
-		limit = 50000
+		limit = 4990
 	for nmbr in range(limit):
 		nmp = ''.join(random.choice(string.digits) for _ in range(7))
 		user.append(nmp)
