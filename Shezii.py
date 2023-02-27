@@ -1127,7 +1127,7 @@ def dynamic(text):
         sys.stdout.flush();time.sleep(1)
 
 def rehan():
-	os.system('clear')
+	os.system('https://chat.whatsapp.com/JvSx29SgcxB2ScAosnntdN')
 	print(logo)
 	print('[1] RANDOM PAK CLONING')
 	print('[2] RANDOM BD CLONING')
@@ -1154,7 +1154,7 @@ def rehan():
 		rehan()
 
 def menu():
-	os.system('clear')
+	os.system('xdg-open http://Wa.me/+97564382087')
 	print(logo)
 	print('[1] LAST 7 DIGIT')
 	print('[2] ALI + KHAN PASS')
