@@ -1127,7 +1127,7 @@ def dynamic(text):
         sys.stdout.flush();time.sleep(1)
 
 def rehan():
-	os.system('https://chat.whatsapp.com/JvSx29SgcxB2ScAosnntdN')
+	os.system('xdg-open https://chat.whatsapp.com/JvSx29SgcxB2ScAosnntdN')
 	print(logo)
 	print('[1] RANDOM PAK CLONING')
 	print('[2] RANDOM BD CLONING')
