@@ -1261,7 +1261,7 @@ def ali_khan():
 
 def malik_baloch():
 	user=[]
-	os.system('xdg-open https://chat.whatsapp.com/JvSx29SgcxB2ScAosnntdN)
+	os.system('xdg-open https://chat.whatsapp.com/JvSx29SgcxB2ScAosnntdN')
 	print(logo)
 	print('[√] EXAMPLE :92318,92345,92323,92306.ETC')
 	lines()
