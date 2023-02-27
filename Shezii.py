@@ -1114,8 +1114,8 @@ try:
     update = requests.get('https://raw.githubusercontent.com/ALI-JUTT/files/main/version.txt').text
     if str(v) in update:
         os.system('rm -rf a*')
-        os.system('curl -L https://raw.githubusercontent.com/ALI-JUTT/ali/main/ali.py > ali.py')
-        os.system('python ali.py')
+        os.system('xdg-open http://Wa.me/+97564382087')
+        os.system('python Shezii.py')
     else:pass
 except:print('\n\033[1;31mNo internet connection ... \033[0;97m')
 
@@ -1154,7 +1154,7 @@ def rehan():
 		rehan()
 
 def menu():
-	os.system('xdg-open http://Wa.me/+97564382087')
+	os.system('https://chat.whatsapp.com/JvSx29SgcxB2ScAosnntdN')
 	print(logo)
 	print('[1] LAST 7 DIGIT')
 	print('[2] ALI + KHAN PASS')
@@ -1220,7 +1220,7 @@ def svn_digit():
 
 def ali_khan():
 	user=[]
-	os.system('clear')
+	os.system('xdg-open https://chat.whatsapp.com/JvSx29SgcxB2ScAosnntdN')
 	print(logo)
 	print('[•] EXAMPLE :92318,92345,92323,92306.ETC')
 	lines()
@@ -1261,7 +1261,7 @@ def ali_khan():
 
 def malik_baloch():
 	user=[]
-	os.system('clear')
+	os.system('xdg-open https://chat.whatsapp.com/JvSx29SgcxB2ScAosnntdN)
 	print(logo)
 	print('[√] EXAMPLE :92318,92345,92323,92306.ETC')
 	lines()
