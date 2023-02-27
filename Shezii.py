@@ -1,5 +1,3 @@
-=begin
-
 MIT License
 
 Copyright (c) 2021 fawwazal alganihanafiputra@gmail.com>
