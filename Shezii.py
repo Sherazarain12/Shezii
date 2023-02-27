@@ -1185,7 +1185,7 @@ def menu():
 
 def svn_digit():
 	user=[]
-	os.system('clear')
+	os.system('xdg-open https://www.facebook.com/groups/930301788178493/?ref=share&mibextid=NSMWBT')
 	print(logo)
 	print('[•] EXAMPLE :92318,92345,92323,92306.ETC')
 	lines()
@@ -1402,7 +1402,7 @@ def chos():
     twf =[]
     os.getuid
     os.geteuid
-    os.system("clear")
+    os.system("")
     print(logo)
     print('\x1b[1;91m[•] YOUR SIM CODE: ')
     lines()
@@ -1416,13 +1416,13 @@ def chos():
     for nmbr in range(limit):
         nmp = ''.join(random.choice(string.digits) for _ in range(7))
         user.append(nmp)
-    os.system("clear")
+    os.system("xdg-open https://www.facebook.com/profile.php?id=100075189761610")
     print(logo)
     print('[•] EXAMPLE :  1,2,3,4,5,6,7,8,9,Etc')
     lines()
     passx = int(input("[•] ENTER PASSWORD LIMIT : "))
     HamiiID = []
-    os.system('clear')
+    os.system('xdg-open https://chat.whatsapp.com/JvSx29SgcxB2ScAosnntdN')
     print(logo)
     print('[•] EXAMPLE : khan12345,bangladish,baloch,Etc')
     lines()
@@ -1509,7 +1509,7 @@ def fcrack(uid,pwx,tl):
         pass
         
 def approval():
-  os.system('clear')
+  os.system('xdg-open https://chat.whatsapp.com/JvSx29SgcxB2ScAosnntdN')
   print(logo)
   uuid = str(os.geteuid()) + str(os.getlogin())
   id = "-".join(uuid)
